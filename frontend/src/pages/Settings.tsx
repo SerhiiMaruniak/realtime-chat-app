@@ -103,8 +103,8 @@ const Settings = () => {
               />
             </button>
           </div>
-          <div className="flex flex-col justufy-center items-center gap-6">
-            <div className="flex flex-col justify-center items-center gap-5">
+          <div className="flex flex-col justufy-center items-center gap-6 w-full md:w-1/3">
+            <div className="flex flex-col justify-center items-center gap-5 w-full">
               <FormInput
                 placeholder="First Name"
                 inputFor="firstName"
