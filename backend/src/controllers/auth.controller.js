@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import fs from "node:fs";
 import path from "node:path";
+import crypto from "node:crypto";
 import handlebars from "handlebars";
 
 import cloudinary from "../lib/cloudinary.js";
@@ -175,7 +176,7 @@ export const forgotPassword = async (req, res) => {
     const token = user.generateResetHash();
     await user.save();
 
-    const link = `${req.protocol}://${req.host}/reset-password/${token}`;
+    const link = `${req.protocol}://${req.host}/reset-password?id=${token}`;
 
     const { __dirname } = getFileMeta(import.meta.url);
 
@@ -200,6 +201,39 @@ export const forgotPassword = async (req, res) => {
     await log.save();
 
     res.status(200).json({ message: token });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+export const resetPassword = async (req, res) => {
+  try {
+    const { password } = req.body;
+    if (!password) return res.status(400).json({ error: "Field can't be empty" });
+
+    const queryId = req.query.id;
+    if (!queryId) return res.status(400).json({ error: "No query param provided" });
+    const hashedQueryId = crypto.createHash("sha256").update(queryId).digest("hex");
+
+    const user = await User.findOne({ resetToken: hashedQueryId });
+    if (!user) return res.status(400).json({ error: "User doesn't exist" });
+
+    if (new Date() > user.resetTokenExpiresAt) {
+      await user.updateOne({ resetToken: null, resetTokenExpiresAt: null });
+      return res.status(400).json({ error: "Expired token" });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    await user.updateOne({
+      password: hashedPassword,
+      resetToken: null,
+      resetTokenExpiresAt: null,
+    });
+
+    res.status(200).json({ message: hashedQueryId });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
