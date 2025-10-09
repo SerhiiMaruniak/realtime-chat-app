@@ -168,9 +168,7 @@ export const forgotPassword = async (req, res) => {
 
       let oneMinuteLater = new Date(lastEmail.sentAt.getTime() + 1 * 60000);
       if (new Date() < oneMinuteLater)
-        return res
-          .status(400)
-          .json({ error: "You should wait before sending a new one" });
+        return res.status(400).json({ error: "Wait 1 minute before sending another" });
     }
 
     const token = user.generateResetHash();
@@ -200,7 +198,7 @@ export const forgotPassword = async (req, res) => {
     });
     await log.save();
 
-    res.status(200).json({ message: token });
+    res.status(200).json({ message: "Success" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });

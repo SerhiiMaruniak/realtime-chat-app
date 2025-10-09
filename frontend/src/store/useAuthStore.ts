@@ -17,11 +17,13 @@ interface AuthStore {
   isSigningIn: boolean;
   isCheckingAuth: boolean;
   isUpdatingProfile: boolean;
+  isForgetingPassword: boolean;
   checkAuth: () => Promise<void>;
   signUp: (data: any) => Promise<void>;
   signIn: (data: any) => Promise<void>;
   logout: () => Promise<void>;
   updateProfile: (data: any) => Promise<void>;
+  forgotPassword: (data: any) => Promise<void>;
   connectSocket: () => void;
   disconnectSocket: () => void;
 }
@@ -35,6 +37,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   isSigningIn: false,
   isCheckingAuth: false,
   isUpdatingProfile: false,
+  isForgetingPassword: false,
 
   checkAuth: async () => {
     set({ isCheckingAuth: true });
@@ -111,6 +114,19 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       console.error(error);
     } finally {
       set({ isUpdatingProfile: false });
+    }
+  },
+
+  forgotPassword: async (data) => {
+    set({ isForgetingPassword: true });
+
+    try {
+      await axiosInstance.post("/auth/forgot-password", data);
+      toast.success("Sent a link successfully!");
+    } catch (error: any) {
+      toast.error(error.response.data.error);
+    } finally {
+      set({ isForgetingPassword: false });
     }
   },
 
