@@ -26,14 +26,27 @@ const FormInput = ({
 }: FormInputProps) => {
   const [error, setError] = useState<string | null>(null);
   const [inputWidth, setInputWidth] = useState<number | null>(null);
+  const [inputType, setInputType] = useState<"password" | "text" | "email">("text");
 
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!inputRef.current) return;
 
+    switch (inputFor) {
+      case "email":
+        setInputType("email");
+        break;
+      case "password":
+        setInputType("password");
+        break;
+      default:
+        setInputType("text");
+        break;
+    }
+
     setInputWidth(Math.floor(inputRef.current.getBoundingClientRect().width));
-  }, []);
+  }, [inputFor]);
 
   useEffect(() => {
     if (formError) {
@@ -50,7 +63,7 @@ const FormInput = ({
           placeholder=" "
           autoComplete="off"
           autoCorrect="off"
-          type="text"
+          type={inputType}
           value={formData[inputFor]}
           ref={inputRef}
           className={`peer w-full rounded-sm border 

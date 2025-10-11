@@ -174,7 +174,9 @@ export const forgotPassword = async (req, res) => {
     const token = user.generateResetHash();
     await user.save();
 
-    const link = `${req.protocol}://${req.host}/reset-password?id=${token}`;
+    const link = `${req.protocol}://${
+      process.env.FRONTEND_LINK ? process.env.FRONTEND_LINK : "localhost:5173"
+    }/reset-password?id=${token}`;
 
     const { __dirname } = getFileMeta(import.meta.url);
 

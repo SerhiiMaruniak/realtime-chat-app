@@ -52,7 +52,7 @@ const AddFriends = () => {
 
   return (
     <div className="flex flex-col w-full h-full overflow-hidden">
-      <form className="relative w-full mb-4 p-0.5" onSubmit={handleSearch}>
+      <form className="relative w-full mb-4 p-0.5" onSubmit={handleSearch} noValidate>
         <div>
           <input
             type="text"
