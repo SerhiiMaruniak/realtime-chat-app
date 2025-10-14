@@ -10,6 +10,7 @@ import authRoute from "./routes/auth.route.js";
 import messageRoute from "./routes/message.route.js";
 import friendRoute from "./routes/friend.route.js";
 import { app, server } from "./lib/socket.js";
+import "./jobs/resetToken.js";
 
 app.use(
   express.json({
