@@ -3,7 +3,9 @@ import express from "express";
 import protectedRoute from "../middleware/protectedRoute.js";
 import {
   checkAuth,
+  forgotPassword,
   logout,
+  resetPassword,
   signIn,
   signUp,
   updateProfile,
@@ -15,6 +17,8 @@ router.get("/check", protectedRoute, checkAuth);
 
 router.post("/signup", signUp);
 router.post("/signin", signIn);
+router.post("/forgot-password", forgotPassword);
+router.post("/reset-password", resetPassword);
 router.post("/logout", logout);
 
 router.put("/update-profile", protectedRoute, updateProfile);

@@ -56,7 +56,7 @@ const SignUp = () => {
       justify-center lg:justify-between items-center gap-8"
     >
       <div className="flex flex-col w-full md:w-2/3 max-w-lg items-center justify-center scale-90 sm:scale-100">
-        <form className="w-full" onSubmit={handleSubmit}>
+        <form className="w-full" onSubmit={handleSubmit} noValidate>
           <div className="flex flex-col items-center justify-center gap-6 w-full my-6">
             <FormInput
               placeholder="First Name"

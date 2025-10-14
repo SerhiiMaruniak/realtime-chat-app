@@ -11,6 +11,8 @@ import SignUp from "./pages/SignUp.tsx";
 import { Toaster } from "react-hot-toast";
 import Loader from "./components/Loader.tsx";
 import Settings from "./pages/Settings.tsx";
+import ForgotPassword from "./pages/ForgotPassword.tsx";
+import ResetPassword from "./pages/ResetPassword.tsx";
 
 const App = () => {
   // selectedPage - responds for selected page in friends page on small devices
@@ -62,6 +64,14 @@ const App = () => {
           />
           <Route path="/signup" element={!user ? <SignUp /> : <Navigate to={"/"} />} />
           <Route path="/signin" element={!user ? <SignIn /> : <Navigate to={"/"} />} />
+          <Route
+            path="/forgot-password"
+            element={!user ? <ForgotPassword /> : <Navigate to={"/"} />}
+          />
+          <Route
+            path="/reset-password"
+            element={!user ? <ResetPassword /> : <Navigate to={"/"} />}
+          />
         </Routes>
       </div>
     </PageContext.Provider>

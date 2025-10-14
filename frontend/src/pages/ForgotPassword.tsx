@@ -6,9 +6,8 @@ import FormInput from "../components/Form/FormInput";
 import FormButton from "../components/Form/FormButton";
 import { useAuthStore } from "../store/useAuthStore";
 import FormDistraction from "../components/Form/FormDistraction";
-import { SignInSchema } from "../lib/schemas/schemas";
 
-const SignIn = () => {
+const ForgotPasword = () => {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -19,22 +18,27 @@ const SignIn = () => {
 
   const navigate = useNavigate();
 
-  const { signIn, isSigningIn } = useAuthStore();
+  const { forgotPassword, isForgetingPassword } = useAuthStore();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const validated = z.safeParse(SignInSchema, {
-      email: formData.email,
-      password: formData.password,
-    });
+    const validated = z.safeParse(
+      z.object({
+        email: z.email("Should be a valid email"),
+      }),
+      {
+        email: formData.email,
+      }
+    );
 
     if (validated.error) {
       setFormError(validated.error.issues);
+      console.log(validated.error.issues);
       return;
     }
 
-    signIn({ email: validated.data.email, password: validated.data.password });
+    forgotPassword({ email: validated.data.email });
   };
 
   return (
@@ -58,40 +62,27 @@ const SignIn = () => {
               setFormData={setFormData}
               formError={formError}
             />
-            <FormInput
-              placeholder="Password"
-              inputFor="password"
-              formData={formData}
-              setFormData={setFormData}
-              formError={formError}
-            />
           </div>
-          <FormButton placeholder="Sign In" loading={isSigningIn} />
+          <FormButton placeholder="Send a reset link" loading={isForgetingPassword} />
         </form>
         <div className="my-2">
-          <p
-            className="text-label-brighter-text hover:text-label-text text-sm sm:text-md font-bold text-center duration-150 cursor-pointer"
-            onClick={() => navigate("/forgot-password")}
-          >
-            Forgot a password
-          </p>
           <p className="text-label-text text-sm sm:text-md text-center mt-2.5">
-            Don't have an account?{" "}
+            Remembered a password?{" "}
             <span
               className="text-label-brighter-text font-bold cursor-pointer hover:text-label-text"
-              onClick={() => navigate("/signup")}
+              onClick={() => navigate("/signin")}
             >
-              Sign Up
+              Sign In
             </span>
           </p>
         </div>
       </div>
       <FormDistraction
-        header="Welcome back!"
-        description="We have been waiting for you so long"
+        header="Forgot a password?"
+        description="No worries, we are always here to help you"
       />
     </div>
   );
 };
 
-export default SignIn;
+export default ForgotPasword;

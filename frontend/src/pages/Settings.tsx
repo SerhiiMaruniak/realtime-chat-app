@@ -68,6 +68,7 @@ const Settings = () => {
       </button>
       <div className="w-full h-full">
         <form
+          noValidate
           className="w-ful h-full flex flex-col justify-center items-center gap-4"
           onSubmit={handleSubmit}
         >
