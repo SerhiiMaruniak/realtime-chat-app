@@ -1,7 +1,7 @@
 import Message from "../models/message.model.js";
 import User from "../models/user.model.js";
 import cloudinary from "../lib/cloudinary.js";
-import { getReceiverSocketId, io } from "../lib/socket.js";
+import { getReceiverSocketIds, io } from "../lib/socket.js";
 
 export const getUsers = async (req, res) => {
   try {
@@ -34,12 +34,12 @@ export const sendMessage = async (req, res) => {
     if (newMessage) {
       await newMessage.save();
 
-      const receiverSocketId = getReceiverSocketId(receiverId);
+      const receiverSocketId = getReceiverSocketIds(receiverId);
       if (receiverSocketId) {
         io.to(receiverSocketId).emit("newMessage", newMessage);
       }
 
-      const senderSocketId = getReceiverSocketId(req.user._id.toString());
+      const senderSocketId = getReceiverSocketIds(req.user._id.toString());
       if (senderSocketId) {
         io.to(senderSocketId).emit("newMessage", newMessage);
       }
@@ -73,12 +73,12 @@ export const deleteMessage = async (req, res) => {
 
     await message.deleteOne();
 
-    const receiverSocketId = getReceiverSocketId(message.receiverId);
+    const receiverSocketId = getReceiverSocketIds(message.receiverId);
     if (receiverSocketId) {
       io.to(receiverSocketId).emit("deleteMessage", message);
     }
 
-    const senderSocketId = getReceiverSocketId(req.user._id.toString());
+    const senderSocketId = getReceiverSocketIds(req.user._id.toString());
     if (senderSocketId) {
       io.to(senderSocketId).emit("deleteMessage", message);
     }
