@@ -1,4 +1,4 @@
-import { getReceiverSocketId, io } from "../lib/socket.js";
+import { getReceiverSocketIds, io } from "../lib/socket.js";
 import FriendRequest from "../models/friend.model.js";
 import User from "../models/user.model.js";
 
@@ -38,12 +38,12 @@ export const sendFriendRequest = async (req, res) => {
       .populate("senderId", "_id firstName lastName email photoUrl")
       .populate("receiverId", "_id firstName lastName email photoUrl");
 
-    const receiverSocketId = getReceiverSocketId(receiverId);
+    const receiverSocketId = getReceiverSocketIds(receiverId);
     if (receiverSocketId) {
       io.to(receiverSocketId).emit("addFriend", populatedRequest);
     }
 
-    const senderSocketId = getReceiverSocketId(req.user._id.toString());
+    const senderSocketId = getReceiverSocketIds(req.user._id.toString());
     if (senderSocketId) {
       io.to(senderSocketId).emit("addFriend", populatedRequest);
     }
@@ -112,12 +112,12 @@ export const manageFriendRequest = async (req, res) => {
           "_id firstName lastName email photoUrl"
         );
 
-        const receiverSocketId = getReceiverSocketId(receiverId);
+        const receiverSocketId = getReceiverSocketIds(receiverId);
         if (receiverSocketId) {
           io.to(receiverSocketId).emit("acceptRequest", populatedSender, friendRequest);
         }
 
-        const senderSocketId = getReceiverSocketId(senderId.toString());
+        const senderSocketId = getReceiverSocketIds(senderId.toString());
         if (senderSocketId) {
           io.to(senderSocketId).emit("acceptRequest", populatedReceiver, friendRequest);
         }
@@ -141,12 +141,12 @@ export const manageFriendRequest = async (req, res) => {
 
         await friendRequest.deleteOne();
 
-        const receiverSocketId = getReceiverSocketId(receiverId);
+        const receiverSocketId = getReceiverSocketIds(receiverId);
         if (receiverSocketId) {
           io.to(receiverSocketId).emit("declineRequest", friendRequest);
         }
 
-        const senderSocketId = getReceiverSocketId(senderId);
+        const senderSocketId = getReceiverSocketIds(senderId);
         if (senderSocketId) {
           io.to(senderSocketId).emit("declineRequest", friendRequest);
         }
@@ -196,12 +196,12 @@ export const deleteFriend = async (req, res) => {
     await myUser.updateOne({ $pull: { friendsList: friendUser._id } });
     await friendUser.updateOne({ $pull: { friendsList: myUser._id } });
 
-    const receiverSocketId = getReceiverSocketId(friendUser._id.toString());
+    const receiverSocketId = getReceiverSocketIds(friendUser._id.toString());
     if (receiverSocketId) {
       io.to(receiverSocketId).emit("deleteFriend", myUser._id);
     }
 
-    const senderSocketId = getReceiverSocketId(myUser._id.toString());
+    const senderSocketId = getReceiverSocketIds(myUser._id.toString());
     if (senderSocketId) {
       io.to(senderSocketId).emit("deleteFriend", friendUser._id);
     }
