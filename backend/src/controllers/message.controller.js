@@ -34,15 +34,15 @@ export const sendMessage = async (req, res) => {
     if (newMessage) {
       await newMessage.save();
 
-      const receiverSocketId = getReceiverSocketIds(receiverId);
-      if (receiverSocketId) {
-        io.to(receiverSocketId).emit("newMessage", newMessage);
-      }
+      const receiverSocketIds = getReceiverSocketIds(receiverId);
+      receiverSocketIds.forEach((socketId) => {
+        io.to(socketId).emit("newMessage", newMessage);
+      });
 
-      const senderSocketId = getReceiverSocketIds(req.user._id.toString());
-      if (senderSocketId) {
-        io.to(senderSocketId).emit("newMessage", newMessage);
-      }
+      const senderSocketIds = getReceiverSocketIds(req.user._id.toString());
+      senderSocketIds.forEach((socketId) => {
+        io.to(socketId).emit("newMessage", newMessage);
+      });
 
       return res.status(201).json({
         senderId: newMessage.senderId,
@@ -73,15 +73,15 @@ export const deleteMessage = async (req, res) => {
 
     await message.deleteOne();
 
-    const receiverSocketId = getReceiverSocketIds(message.receiverId);
-    if (receiverSocketId) {
-      io.to(receiverSocketId).emit("deleteMessage", message);
-    }
+    const receiverSocketIds = getReceiverSocketIds(message.receiverId);
+    receiverSocketIds.forEach((socketId) => {
+      io.to(socketId).emit("deleteMessage", message);
+    });
 
-    const senderSocketId = getReceiverSocketIds(req.user._id.toString());
-    if (senderSocketId) {
-      io.to(senderSocketId).emit("deleteMessage", message);
-    }
+    const senderSocketIds = getReceiverSocketIds(req.user._id.toString());
+    senderSocketIds.forEach((socketId) => {
+      io.to(socketId).emit("deleteMessage", message);
+    });
 
     return res.status(204);
   } catch (error) {
