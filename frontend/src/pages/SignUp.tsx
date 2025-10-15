@@ -52,7 +52,7 @@ const SignUp = () => {
       bg-secondary_dark
       px-2 sm:px-4 md:px-8 lg:px-20
       py-2 sm:py-4 md:py-8 lg:py-20
-      flex flex-col lg:flex-row
+      flex flex-col-reverse lg:flex-row
       justify-center lg:justify-between items-center gap-8"
     >
       <div className="flex flex-col w-full md:w-2/3 max-w-lg items-center justify-center scale-90 sm:scale-100">
@@ -90,7 +90,7 @@ const SignUp = () => {
           <FormButton placeholder="Sign Up" loading={isSigningUp} />
         </form>
         <p className="text-label-text text-sm sm:text-md text-center my-2">
-          Already have an account?
+          Already have an account?{" "}
           <span
             className="text-label-brighter-text font-bold cursor-pointer hover:text-label-text"
             onClick={() => navigate("/signin")}
