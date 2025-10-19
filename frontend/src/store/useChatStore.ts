@@ -22,6 +22,7 @@ interface ChatProps {
   sendMessage: (data: any) => Promise<void>;
   getMessages: (data: any) => Promise<void>;
   deleteMessage: (data: any) => Promise<void>;
+  setMessageSeen: (messageId: string) => Promise<void>;
   subscribeMessages: () => void;
   unsubscribeMessages: () => void;
 }
@@ -101,22 +102,47 @@ export const useChatStore = create<ChatProps>((set, get) => ({
     }
   },
 
+  setMessageSeen: async (messageId: string) => {
+    try {
+      await AxiosInstance.post("/messages/set-seen", { id: messageId });
+      set({
+        messages: (get().messages || []).map((msg) =>
+          msg._id === messageId ? { ...msg, is_seen: true } : msg
+        ),
+      });
+    } catch (error: any) {
+      toast.error(error.response.data.error);
+      console.error(error);
+    }
+  },
+
   subscribeMessages: () => {
-    const { selectedChat } = get();
-    if (!selectedChat) return;
-
     const socket = useAuthStore.getState().socket;
+    if (!socket) return;
 
-    socket?.on("newMessage", (message) => {
+    socket.on("newMessage", (message) => {
       set({ messages: [...(get().messages || []), message] });
+
+      const currentUser = useAuthStore.getState().user;
+      if (message.receiverId === currentUser?._id && !message.is_seen) {
+        get().setMessageSeen(message._id);
+      }
     });
 
-    socket?.on("deleteMessage", (messageToDelete) => {
+    socket.on("deleteMessage", (messageToDelete) => {
       set({
         messages: [
           ...(get().messages?.filter((message) => message._id !== messageToDelete._id) ||
             []),
         ],
+      });
+    });
+
+    socket.on("messageSeen", ({ messageId }) => {
+      set({
+        messages: (get().messages || []).map((msg) =>
+          msg._id === messageId ? { ...msg, is_seen: true } : msg
+        ),
       });
     });
   },
@@ -125,5 +151,6 @@ export const useChatStore = create<ChatProps>((set, get) => ({
     const socket = useAuthStore.getState().socket;
     socket?.off("newMessage");
     socket?.off("deleteMessage");
+    socket?.off("messageSeen");
   },
 }));

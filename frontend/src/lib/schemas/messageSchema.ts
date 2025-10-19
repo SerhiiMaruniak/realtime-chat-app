@@ -3,6 +3,7 @@ export default interface messageSchema {
   senderId: string;
   receiverId: string;
   content: string;
+  is_seen: boolean;
   attachments: string;
   createdAt: string;
   updatedAt: string;
