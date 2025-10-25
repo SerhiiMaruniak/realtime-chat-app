@@ -6,14 +6,7 @@ import Loader from "../Loader";
 import { getDayLabel } from "../../lib/formatDate";
 
 const ChatMessages = () => {
-  const {
-    getMessages,
-    isGettingMessages,
-    messages,
-    selectedChat,
-    subscribeMessages,
-    unsubscribeMessages,
-  } = useChatStore();
+  const { getMessages, isGettingMessages, messages, selectedChat } = useChatStore();
   const { user } = useAuthStore();
   const endOfMessages = useRef<HTMLDivElement>(null);
 
@@ -21,11 +14,7 @@ const ChatMessages = () => {
 
   useEffect(() => {
     getMessages({ id: selectedChat?._id });
-
-    subscribeMessages();
-
-    return () => unsubscribeMessages();
-  }, [getMessages, selectedChat, subscribeMessages, unsubscribeMessages]);
+  }, [getMessages, selectedChat]);
 
   useEffect(() => {
     if (!messages) return;

@@ -16,8 +16,6 @@ const ChatMiniature = ({ user, width, min_width, messages }: ChatMiniatureProps)
 
   const fullName = `${user.firstName} ${user.lastName}`;
 
-  console.log(messages);
-
   return (
     <div
       className={`w-full cursor-pointer duration-150 transition-all rounded-lg flex  gap-2.5 items-center px-2.5 py-1.5 
@@ -34,7 +32,7 @@ const ChatMiniature = ({ user, width, min_width, messages }: ChatMiniatureProps)
           src={user.photoUrl !== "" ? user.photoUrl : "avatar_placeholder.png"}
           alt="user_avatar"
         />
-        {messages && (
+        {messages && messages.length > 0 && (
           <div className="absolute -top-1 -left-2 bg-label-text w-6 h-6 rounded-full">
             <p className="text-center text-secondary_dark">{messages.length}</p>
           </div>

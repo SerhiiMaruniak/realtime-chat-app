@@ -11,6 +11,7 @@ interface ChatProps {
   selectedChat: User | null;
   selectedImage: string | null;
   messages: messageSchema[] | null;
+  unreadMessages: messageSchema[] | null;
   isGettingUsers: boolean;
   isSendingMessage: boolean;
   isGettingMessages: boolean;
@@ -32,6 +33,14 @@ export const useChatStore = create<ChatProps>((set, get) => ({
   selectedChat: null,
   selectedImage: null,
   messages: null,
+  unreadMessages: (() => {
+    try {
+      const raw = localStorage.getItem("unreadMessages");
+      return raw ? (JSON.parse(raw) as messageSchema[]) : null;
+    } catch {
+      return null;
+    }
+  })(),
   isGettingUsers: false,
   isGettingMessages: false,
   isSendingMessage: false,
@@ -52,6 +61,19 @@ export const useChatStore = create<ChatProps>((set, get) => ({
 
   selectChat: async (data) => {
     set({ selectedChat: data });
+
+    const currentUser = useAuthStore.getState().user;
+    const newUnread = (get().unreadMessages || []).filter(
+      (m) => !(m.senderId === data._id && m.receiverId === currentUser?._id)
+    );
+    set({ unreadMessages: newUnread });
+
+    try {
+      localStorage.setItem("unreadMessages", JSON.stringify(newUnread));
+    } catch (error: any) {
+      toast.error(error.response.data.error);
+      console.error(error);
+    }
   },
 
   closeChat: () => {
@@ -105,11 +127,17 @@ export const useChatStore = create<ChatProps>((set, get) => ({
   setMessageSeen: async (messageId: string) => {
     try {
       await AxiosInstance.post("/messages/set-seen", { id: messageId });
-      set({
-        messages: (get().messages || []).map((msg) =>
-          msg._id === messageId ? { ...msg, is_seen: true } : msg
-        ),
-      });
+      const updatedMessages = (get().messages || []).map((msg) =>
+        msg._id === messageId ? { ...msg, is_seen: true } : msg
+      );
+      const newUnread = (get().unreadMessages || []).filter((m) => m._id !== messageId);
+      set({ messages: updatedMessages, unreadMessages: newUnread });
+      try {
+        localStorage.setItem("unreadMessages", JSON.stringify(newUnread));
+      } catch (error: any) {
+        toast.error(error.response.data.error);
+        console.error(error);
+      }
     } catch (error: any) {
       toast.error(error.response.data.error);
       console.error(error);
@@ -120,12 +148,37 @@ export const useChatStore = create<ChatProps>((set, get) => ({
     const socket = useAuthStore.getState().socket;
     if (!socket) return;
 
-    socket.on("newMessage", (message) => {
-      set({ messages: [...(get().messages || []), message] });
+    socket.off("newMessage");
+    socket.off("deleteMessage");
+    socket.off("messageSeen");
 
+    socket.on("newMessage", (message) => {
       const currentUser = useAuthStore.getState().user;
-      if (message.receiverId === currentUser?._id && !message.is_seen) {
-        get().setMessageSeen(message._id);
+      const selectedChat = get().selectedChat;
+
+      if (
+        selectedChat &&
+        (message.senderId === selectedChat._id || message.receiverId === selectedChat._id)
+      ) {
+        set({ messages: [...(get().messages || []), message] });
+
+        if (message.receiverId === currentUser?._id && !message.is_seen) {
+          get().setMessageSeen(message._id);
+        }
+      } else {
+        if (message.receiverId === currentUser?._id && !message.is_seen) {
+          const existing = get().unreadMessages || [];
+          if (!existing.find((m) => m._id === message._id)) {
+            const updated = [...existing, message];
+            set({ unreadMessages: updated });
+            try {
+              localStorage.setItem("unreadMessages", JSON.stringify(updated));
+            } catch (error: any) {
+              toast.error(error.response.data.error);
+              console.error(error);
+            }
+          }
+        }
       }
     });
 
@@ -139,14 +192,19 @@ export const useChatStore = create<ChatProps>((set, get) => ({
     });
 
     socket.on("messageSeen", ({ messageId }) => {
-      set({
-        messages: (get().messages || []).map((msg) =>
-          msg._id === messageId ? { ...msg, is_seen: true } : msg
-        ),
-      });
+      const updatedMessages = (get().messages || []).map((msg) =>
+        msg._id === messageId ? { ...msg, is_seen: true } : msg
+      );
+      const newUnread = (get().unreadMessages || []).filter((m) => m._id !== messageId);
+      set({ messages: updatedMessages, unreadMessages: newUnread });
+      try {
+        localStorage.setItem("unreadMessages", JSON.stringify(newUnread));
+      } catch (error: any) {
+        toast.error(error.response.data.error);
+        console.error(error);
+      }
     });
   },
-
   unsubscribeMessages: () => {
     const socket = useAuthStore.getState().socket;
     socket?.off("newMessage");

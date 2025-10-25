@@ -13,6 +13,7 @@ import Loader from "./components/Loader.tsx";
 import Settings from "./pages/Settings.tsx";
 import ForgotPassword from "./pages/ForgotPassword.tsx";
 import ResetPassword from "./pages/ResetPassword.tsx";
+import { useChatStore } from "./store/useChatStore.ts";
 
 const App = () => {
   // selectedPage - responds for selected page in friends page on small devices
@@ -20,6 +21,7 @@ const App = () => {
   const [screen, setScreen] = useState<Record<string, number>>({ width: 0, height: 0 });
 
   const { user, checkAuth, isCheckingAuth } = useAuthStore();
+  const { subscribeMessages, unsubscribeMessages } = useChatStore();
 
   useEffect(() => {
     function updateScreenSize() {
@@ -38,6 +40,14 @@ const App = () => {
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
+
+  useEffect(() => {
+    if (user) {
+      subscribeMessages();
+
+      return () => unsubscribeMessages();
+    }
+  }, [subscribeMessages, unsubscribeMessages, user]);
 
   if (isCheckingAuth && !user) {
     return (

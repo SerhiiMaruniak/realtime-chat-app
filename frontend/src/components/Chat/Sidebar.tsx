@@ -30,7 +30,7 @@ const Sidebar = () => {
   const navigate = useNavigate();
 
   const { friends, getFriends, isGettingFriends } = useFriendsStore();
-  const { messages } = useChatStore();
+  const { messages, unreadMessages } = useChatStore();
   const { logout } = useAuthStore();
 
   const handleResize = useCallback(
@@ -158,7 +158,11 @@ const Sidebar = () => {
                   user={friend}
                   width={currentWidth}
                   min_width={MIN_WIDTH}
-                  messages={filteredUnreadMessages}
+                  messages={
+                    unreadMessages && unreadMessages.length > 0
+                      ? unreadMessages.filter((m) => m.senderId === friend._id)
+                      : filteredUnreadMessages
+                  }
                 />
               );
             })
