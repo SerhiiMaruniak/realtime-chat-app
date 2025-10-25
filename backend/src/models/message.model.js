@@ -6,6 +6,7 @@ const messageSchema = new mongoose.Schema(
     receiverId: { type: String, required: true },
     content: { type: String },
     attachments: { type: String, default: "" },
+    is_seen: { type: Boolean, default: false, required: true },
   },
   { timestamps: true }
 );

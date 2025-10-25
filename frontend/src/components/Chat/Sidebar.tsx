@@ -6,6 +6,7 @@ import ChatMiniature from "./ChatMiniature";
 import { useFriendsStore } from "../../store/useFriendsStore";
 import { useAuthStore } from "../../store/useAuthStore";
 import Loader from "../Loader";
+import { useChatStore } from "../../store/useChatStore";
 
 const MIN_WIDTH = 120;
 const MAX_WIDTH = 400;
@@ -29,6 +30,7 @@ const Sidebar = () => {
   const navigate = useNavigate();
 
   const { friends, getFriends, isGettingFriends } = useFriendsStore();
+  const { messages, unreadMessages } = useChatStore();
   const { logout } = useAuthStore();
 
   const handleResize = useCallback(
@@ -142,14 +144,28 @@ const Sidebar = () => {
               const fullName = `${friend.firstName} ${friend.lastName}`.toLowerCase();
               return fullName.includes(filteredFriends.toLowerCase());
             })
-            .map((friend) => (
-              <ChatMiniature
-                key={friend._id}
-                user={friend}
-                width={currentWidth}
-                min_width={MIN_WIDTH}
-              />
-            ))
+            .map((friend) => {
+              let filteredUnreadMessages = null;
+              if (messages && messages.length !== 0) {
+                filteredUnreadMessages = messages?.filter(
+                  (message) => message.senderId === friend._id && !message.is_seen
+                );
+              }
+
+              return (
+                <ChatMiniature
+                  key={friend._id}
+                  user={friend}
+                  width={currentWidth}
+                  min_width={MIN_WIDTH}
+                  messages={
+                    unreadMessages && unreadMessages.length > 0
+                      ? unreadMessages.filter((m) => m.senderId === friend._id)
+                      : filteredUnreadMessages
+                  }
+                />
+              );
+            })
         ) : (
           "No friends"
         )}

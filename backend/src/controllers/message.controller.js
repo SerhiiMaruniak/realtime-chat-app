@@ -29,6 +29,7 @@ export const sendMessage = async (req, res) => {
       receiverId,
       content,
       attachments: attachmentUrl,
+      is_seen: false,
     });
 
     if (newMessage) {
@@ -49,6 +50,7 @@ export const sendMessage = async (req, res) => {
         receiverId: newMessage.receiverId,
         content: newMessage.content,
         attachments: newMessage.attachments,
+        is_seen: newMessage.is_seen,
       });
     }
   } catch (error) {
@@ -102,6 +104,34 @@ export const getMessages = async (req, res) => {
       ],
     });
     res.status(200).json(messages);
+  } catch (error) {
+    res.status(500).json({ error: "Internal Server Error" });
+    console.error(error);
+  }
+};
+
+export const setMessageSeen = async (req, res) => {
+  try {
+    const { id: messageId } = req.body;
+    const message = await Message.findById(messageId);
+
+    if (!message) {
+      return res.status(404).json({ error: "Message not found" });
+    }
+
+    if (req.user._id.toString() !== message.receiverId) {
+      return res.status(403).json({ error: "Not authorized" });
+    }
+
+    message.is_seen = true;
+    await message.save();
+
+    const senderSocketIds = getReceiverSocketIds(message.senderId);
+    senderSocketIds.forEach((socketId) => {
+      io.to(socketId).emit("messageSeen", { messageId });
+    });
+
+    return res.status(200).json({ success: true });
   } catch (error) {
     res.status(500).json({ error: "Internal Server Error" });
     console.error(error);
