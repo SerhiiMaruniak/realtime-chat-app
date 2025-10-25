@@ -29,7 +29,7 @@ const App = () => {
       });
     }
 
-    updateScreenSize(); // set initial size
+    updateScreenSize();
     window.addEventListener("resize", updateScreenSize);
 
     return () => window.removeEventListener("resize", updateScreenSize);

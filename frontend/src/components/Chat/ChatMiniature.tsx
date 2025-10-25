@@ -1,3 +1,4 @@
+import type messageSchema from "../../lib/schemas/messageSchema.ts";
 import type User from "../../lib/schemas/userSchema.ts";
 import { useAuthStore } from "../../store/useAuthStore.ts";
 import { useChatStore } from "../../store/useChatStore.ts";
@@ -6,13 +7,16 @@ interface ChatMiniatureProps {
   user: User;
   width: number;
   min_width: number;
+  messages: messageSchema[] | null;
 }
 
-const ChatMiniature = ({ user, width, min_width }: ChatMiniatureProps) => {
+const ChatMiniature = ({ user, width, min_width, messages }: ChatMiniatureProps) => {
   const { onlineUsers } = useAuthStore();
   const { selectedChat, selectChat } = useChatStore();
 
   const fullName = `${user.firstName} ${user.lastName}`;
+
+  console.log(messages);
 
   return (
     <div
@@ -30,6 +34,11 @@ const ChatMiniature = ({ user, width, min_width }: ChatMiniatureProps) => {
           src={user.photoUrl !== "" ? user.photoUrl : "avatar_placeholder.png"}
           alt="user_avatar"
         />
+        {messages && (
+          <div className="absolute -top-1 -left-2 bg-label-text w-6 h-6 rounded-full">
+            <p className="text-center text-secondary_dark">{messages.length}</p>
+          </div>
+        )}
         {onlineUsers.includes(user._id) && (
           <div className="absolute w-3 h-3 rounded-full bg-green-500 top-9 right-0"></div>
         )}
