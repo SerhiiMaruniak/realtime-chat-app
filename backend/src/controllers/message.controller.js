@@ -92,6 +92,31 @@ export const deleteMessage = async (req, res) => {
   }
 };
 
+export const editMessage = async (req, res) => {
+  try {
+    const { id: messageToEdit, content } = req.body;
+
+    if (!messageToEdit || !content)
+      return res.status(400).json({ error: "Fields can't be empty" });
+
+    const message = await Message.findById(messageToEdit);
+
+    if (!message) {
+      return res.status(400).json({ error: "Message doesn't exist" });
+    }
+
+    if (req.user._id.toString() !== message.senderId) {
+      return res.status(400).json({ error: "You aren't the owner of this message" });
+    }
+
+    await Message.findByIdAndUpdate(messageToEdit, { content }, { new: true });
+    res.status(201).send();
+  } catch (error) {
+    res.status(500).json({ error: "Internal Server Error" });
+    console.error(error);
+  }
+};
+
 export const getMessages = async (req, res) => {
   try {
     const { id: userToChatId } = req.body;
