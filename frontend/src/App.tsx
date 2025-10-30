@@ -21,7 +21,7 @@ const App = () => {
   const [screen, setScreen] = useState<Record<string, number>>({ width: 0, height: 0 });
 
   const { user, checkAuth, isCheckingAuth } = useAuthStore();
-  const { subscribeMessages, unsubscribeMessages } = useChatStore();
+  const { subscribeMessages, unsubscribeMessages, showContextMenu } = useChatStore();
 
   useEffect(() => {
     function updateScreenSize() {
@@ -49,6 +49,19 @@ const App = () => {
     }
   }, [subscribeMessages, unsubscribeMessages, user]);
 
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement | null;
+
+      if (!target || !target.closest("#context_menu")) {
+        showContextMenu({ message: null });
+      }
+    };
+
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [showContextMenu]);
+
   if (isCheckingAuth && !user) {
     return (
       <div className="flex items-center justify-center w-full h-screen bg-main_dark">
@@ -59,7 +72,12 @@ const App = () => {
 
   return (
     <PageContext.Provider value={{ screen, selectedPage, setSelectedPage }}>
-      <div className="bg-main_dark w-full h-screen flex justify-center items-center font-[Roboto]">
+      <div
+        className="bg-main_dark w-full h-screen flex justify-center items-center font-[Roboto]"
+        onContextMenu={(e) => {
+          e.preventDefault();
+        }}
+      >
         <Toaster />
 
         <Routes>

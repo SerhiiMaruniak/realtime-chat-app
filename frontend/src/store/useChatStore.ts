@@ -12,6 +12,7 @@ interface ChatProps {
   selectedImage: string | null;
   messages: messageSchema[] | null;
   unreadMessages: messageSchema[] | null;
+  contextMenu: string | null;
   isGettingUsers: boolean;
   isSendingMessage: boolean;
   isGettingMessages: boolean;
@@ -24,6 +25,7 @@ interface ChatProps {
   getMessages: (data: any) => Promise<void>;
   deleteMessage: (data: any) => Promise<void>;
   setMessageSeen: (messageId: string) => Promise<void>;
+  showContextMenu: (data: any) => void;
   subscribeMessages: () => void;
   unsubscribeMessages: () => void;
 }
@@ -41,6 +43,7 @@ export const useChatStore = create<ChatProps>((set, get) => ({
       return null;
     }
   })(),
+  contextMenu: null,
   isGettingUsers: false,
   isGettingMessages: false,
   isSendingMessage: false,
@@ -142,6 +145,10 @@ export const useChatStore = create<ChatProps>((set, get) => ({
       toast.error(error.response.data.error);
       console.error(error);
     }
+  },
+
+  showContextMenu: (data) => {
+    set({ contextMenu: data.message });
   },
 
   subscribeMessages: () => {

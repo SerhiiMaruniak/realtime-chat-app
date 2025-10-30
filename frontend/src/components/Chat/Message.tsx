@@ -1,11 +1,12 @@
-import { useContext, useState, useRef, useEffect } from "react";
-import { CheckCircle, Trash2 } from "lucide-react";
+import { useContext, useRef, useEffect } from "react";
+import { CheckCircle } from "lucide-react";
 
 import { getHM } from "../../lib/formatDate";
 import type messageSchema from "../../lib/schemas/messageSchema";
 import { useChatStore } from "../../store/useChatStore";
 import { PageContext } from "../../context/PageContext";
 import { useAuthStore } from "../../store/useAuthStore";
+import ContextMenu from "./ContextMenu";
 
 interface MessageProps {
   message: messageSchema;
@@ -13,10 +14,9 @@ interface MessageProps {
 }
 
 const Message = ({ message, lastSeenMessageId }: MessageProps) => {
-  const [isHovering, setIsHovering] = useState(false);
   const messageRef = useRef<HTMLDivElement>(null);
 
-  const { selectImage, deleteMessage, setMessageSeen } = useChatStore();
+  const { selectImage, setMessageSeen, contextMenu, showContextMenu } = useChatStore();
   const pageContext = useContext(PageContext);
   const { user } = useAuthStore();
 
@@ -44,33 +44,25 @@ const Message = ({ message, lastSeenMessageId }: MessageProps) => {
     };
   }, [message.is_seen, user?._id, message.receiverId, setMessageSeen, message._id]);
 
-  const handleDeleteMessage = () => {
-    deleteMessage({ id: message._id });
-  };
-
   return (
     <div
       ref={messageRef}
       className={`w-full flex ${isSent ? "justify-end" : "justify-start"} items-start`}
-      onMouseEnter={() => setIsHovering(true)}
-      onMouseLeave={() => setIsHovering(false)}
     >
-      {isHovering && isSent && (
-        <button className="cursor-pointer mr-2" onClick={handleDeleteMessage}>
-          <Trash2
-            size={20}
-            className="duration-150 transition-all text-label-text hover:text-label-brighter-text"
-          />
-        </button>
-      )}
-
       <div className={`flex flex-col gap-1 ${isSent ? "items-end" : "items-start"}`}>
-        <div className="relative">
+        <div
+          className="relative"
+          onContextMenu={() => {
+            if (message.senderId === user?._id) showContextMenu({ message: message._id });
+          }}
+        >
           {!message.is_seen && message.receiverId === user?._id && (
             <div className="absolute inset-0 bg-[rgba(81,66,111,0.09)] border-l-2 border-l-[rgba(81,66,111,0.9)] -z-10 rounded-lg" />
           )}
 
           <div className="relative z-10">
+            {message._id === contextMenu && <ContextMenu messageId={message._id} />}
+
             {message.attachments && (
               <div>
                 <img
