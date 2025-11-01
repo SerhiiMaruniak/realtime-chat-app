@@ -170,6 +170,7 @@ export const useChatStore = create<ChatProps>((set, get) => ({
     if (!socket) return;
 
     socket.off("newMessage");
+    socket.off("editMessage");
     socket.off("deleteMessage");
     socket.off("messageSeen");
 
@@ -203,6 +204,14 @@ export const useChatStore = create<ChatProps>((set, get) => ({
       }
     });
 
+    socket.on("editMessage", (messageToEdit) => {
+      const updatedMessages = (get().messages || []).map((message) =>
+        message._id === messageToEdit._id ? messageToEdit : message
+      );
+
+      set({ messages: updatedMessages });
+    });
+
     socket.on("deleteMessage", (messageToDelete) => {
       set({
         messages: [
@@ -229,6 +238,7 @@ export const useChatStore = create<ChatProps>((set, get) => ({
   unsubscribeMessages: () => {
     const socket = useAuthStore.getState().socket;
     socket?.off("newMessage");
+    socket?.off("editMessage");
     socket?.off("deleteMessage");
     socket?.off("messageSeen");
   },

@@ -109,7 +109,21 @@ export const editMessage = async (req, res) => {
       return res.status(400).json({ error: "You aren't the owner of this message" });
     }
 
-    await Message.findByIdAndUpdate(messageToEdit, { content }, { new: true });
+    const updatedMessage = await Message.findByIdAndUpdate(
+      messageToEdit,
+      { content },
+      { new: true }
+    );
+
+    const receiverSocketIds = getReceiverSocketIds(updatedMessage.receiverId);
+    receiverSocketIds.forEach((socketId) => {
+      io.to(socketId).emit("editMessage", updatedMessage);
+    });
+
+    const senderSocketIds = getReceiverSocketIds(req.user._id.toString());
+    senderSocketIds.forEach((socketId) => {
+      io.to(socketId).emit("editMessage", updatedMessage);
+    });
     res.status(201).send();
   } catch (error) {
     res.status(500).json({ error: "Internal Server Error" });
