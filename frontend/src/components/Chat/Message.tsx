@@ -61,7 +61,7 @@ const Message = ({ message, lastSeenMessageId }: MessageProps) => {
           )}
 
           <div className="relative z-10">
-            {message._id === contextMenu && <ContextMenu messageId={message._id} />}
+            {message._id === contextMenu && <ContextMenu message={message} />}
 
             {message.attachments && (
               <div>
