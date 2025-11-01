@@ -22,6 +22,7 @@ interface ChatProps {
   selectImage: (data: any) => void;
   closeImage: () => void;
   sendMessage: (data: any) => Promise<void>;
+  editMessage: (data: any) => Promise<void>;
   getMessages: (data: any) => Promise<void>;
   deleteMessage: (data: any) => Promise<void>;
   setMessageSeen: (messageId: string) => Promise<void>;
@@ -96,6 +97,19 @@ export const useChatStore = create<ChatProps>((set, get) => ({
 
     try {
       await AxiosInstance.post("/messages/send-message", data);
+    } catch (error: any) {
+      toast.error(error.response.data.error);
+      console.error(error);
+    } finally {
+      set({ isSendingMessage: false });
+    }
+  },
+
+  editMessage: async (data) => {
+    set({ isSendingMessage: true });
+
+    try {
+      await AxiosInstance.put("/messages/edit-message", data);
     } catch (error: any) {
       toast.error(error.response.data.error);
       console.error(error);

@@ -1,5 +1,5 @@
-import { useRef, useState } from "react";
-import { Paperclip, Send, X } from "lucide-react";
+import { useRef, useState, useEffect } from "react";
+import { Paperclip, Send, X, Pencil } from "lucide-react";
 import { useChatStore } from "../../store/useChatStore";
 import Loader from "../Loader";
 
@@ -17,7 +17,29 @@ const ChatInput = () => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { selectedChat, isSendingMessage, sendMessage } = useChatStore();
+  const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
+
+  const { selectedChat, isSendingMessage, sendMessage, editMessage } = useChatStore();
+
+  useEffect(() => {
+    const onStartEdit = (e: Event) => {
+      const ev = e as CustomEvent<{ id: string; content: string }>;
+      if (ev?.detail) {
+        setEditingMessageId(ev.detail.id);
+        setMessageContent((prev) => ({ ...prev, content: ev.detail.content }));
+        setTimeout(() => textareaRef.current?.focus(), 50);
+      }
+    };
+
+    window.addEventListener("startEditMessage", onStartEdit as EventListener);
+    return () =>
+      window.removeEventListener("startEditMessage", onStartEdit as EventListener);
+  }, []);
+
+  const cancelEdit = () => {
+    setEditingMessageId(null);
+    setMessageContent({ receiverId: null, content: "" });
+  };
 
   const handleInput = async (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const textarea = textareaRef.current;
@@ -49,7 +71,7 @@ const ChatInput = () => {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!selectedChat) return;
 
     if (!imagePreview && messageContent.content === "") return;
@@ -60,7 +82,16 @@ const ChatInput = () => {
       attachments: imagePreview,
     };
 
-    sendMessage(messageToSend);
+    if (editingMessageId) {
+      await editMessage({ id: editingMessageId, content: messageContent.content });
+      setEditingMessageId(null);
+      setMessageContent({ receiverId: null, content: "" });
+      setImagePreview(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+
+    await sendMessage(messageToSend);
 
     setMessageContent({
       receiverId: null,
@@ -68,10 +99,23 @@ const ChatInput = () => {
     });
     setImagePreview(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
+    setEditingMessageId(null);
   };
 
   return (
     <div className="w-full relative flex flex-col items-stretch px-5 py-2.5">
+      {editingMessageId && (
+        <div className="mb-2 flex items-center justify-between px-3 text-sm text-label-text">
+          <span>Editing message</span>
+          <button
+            onClick={cancelEdit}
+            aria-label="Cancel edit"
+            className="transition duration-150 text-label-text/80 hover:text-label-brighter-text cursor-pointer"
+          >
+            Cancel
+          </button>
+        </div>
+      )}
       {imagePreview && (
         <div className="mb-2 flex items-center gap-2">
           <div className="relative">
@@ -108,23 +152,31 @@ const ChatInput = () => {
           onChange={handleFileChange}
         />
         <div className="absolute top-1/2 -translate-y-1/2 right-2 flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => {
-              fileInputRef.current?.click();
-            }}
-          >
-            <Paperclip
-              size={22}
-              className="text-label-text cursor-pointer hover:text-label-brighter-text duration-150 transition-all"
-            />
-          </button>
+          {!editingMessageId && (
+            <button
+              type="button"
+              onClick={() => {
+                fileInputRef.current?.click();
+              }}
+            >
+              <Paperclip
+                size={22}
+                className="text-label-text cursor-pointer hover:text-label-brighter-text duration-150 transition-all"
+              />
+            </button>
+          )}
           <button
             type="button"
             className="bg-label-brighter-text hover:bg-label-text p-1.5 rounded-sm text-spec-1-dark cursor-pointer hover:-spec-1-dark duration-150 transition-all"
             onClick={handleSendMessage}
           >
-            {isSendingMessage ? <Loader /> : <Send size={22} />}
+            {isSendingMessage ? (
+              <Loader />
+            ) : !editingMessageId ? (
+              <Send size={22} />
+            ) : (
+              <Pencil size={22} />
+            )}
           </button>
         </div>
       </div>

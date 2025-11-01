@@ -19,6 +19,16 @@ const ContextMenu = ({ message }: ContextProps) => {
 
   const handleDelete = () => {
     deleteMessage({ id: message._id });
+    showContextMenu({ message: null });
+  };
+
+  const handleEdit = () => {
+    window.dispatchEvent(
+      new CustomEvent("startEditMessage", {
+        detail: { id: message._id, content: message.content },
+      })
+    );
+    showContextMenu({ message: null });
   };
 
   return (
@@ -27,7 +37,10 @@ const ContextMenu = ({ message }: ContextProps) => {
       className="absolute -translate-full top-2 -left-1 px-1.5 py-2 bg-spec-1-dark rounded-md animate-slidedown"
     >
       <div className="flex flex-col items-start">
-        <button className="w-38 text-left px-1.5 py-1 cursor-pointer text-label-text hover:bg-label-text hover:text-spec-1-dark rounded-sm">
+        <button
+          className="w-38 text-left px-1.5 py-1 cursor-pointer text-label-text hover:bg-label-text hover:text-spec-1-dark rounded-sm"
+          onClick={handleEdit}
+        >
           Edit
         </button>
         <button
