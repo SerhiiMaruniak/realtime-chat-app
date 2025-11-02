@@ -94,6 +94,7 @@ const Message = ({ message, lastSeenMessageId }: MessageProps) => {
                     >
                       {getHM({ timestamp: message.createdAt })}
                     </p>
+
                     {isSent && message._id === lastSeenMessageId && message.is_seen && (
                       <CheckCircle size={16} className="text-label-text" />
                     )}
@@ -119,13 +120,23 @@ const Message = ({ message, lastSeenMessageId }: MessageProps) => {
                 </p>
 
                 <div className={`flex items-center gap-2 ${isSent ? "justify-end" : ""}`}>
-                  <p
-                    className={`text-label-text text-xs ${
-                      isSent ? "text-right" : "text-left"
+                  <div
+                    className={`flex items-center gap-1.5 ${
+                      isSent ? "flex-row" : "flex-row-reverse"
                     }`}
                   >
-                    {getHM({ timestamp: message.createdAt })}
-                  </p>
+                    {message.is_edited && (
+                      <p className="text-xs text-label-text">(edited)</p>
+                    )}
+
+                    <p
+                      className={`text-label-text text-xs ${
+                        isSent ? "text-right" : "text-left"
+                      }`}
+                    >
+                      {getHM({ timestamp: message.createdAt })}
+                    </p>
+                  </div>
 
                   {isSent && message._id === lastSeenMessageId && message.is_seen && (
                     <CheckCircle size={16} className="text-label-text" />

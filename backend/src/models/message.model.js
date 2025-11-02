@@ -7,6 +7,7 @@ const messageSchema = new mongoose.Schema(
     content: { type: String },
     attachments: { type: String, default: "" },
     is_seen: { type: Boolean, default: false, required: true },
+    is_edited: { type: Boolean, default: false, required: true },
   },
   { timestamps: true }
 );

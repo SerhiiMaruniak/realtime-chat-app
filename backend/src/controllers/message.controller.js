@@ -111,7 +111,7 @@ export const editMessage = async (req, res) => {
 
     const updatedMessage = await Message.findByIdAndUpdate(
       messageToEdit,
-      { content },
+      { content, is_edited: true },
       { new: true }
     );
 

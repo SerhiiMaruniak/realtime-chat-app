@@ -4,6 +4,7 @@ export default interface messageSchema {
   receiverId: string;
   content: string;
   is_seen: boolean;
+  is_edited: boolean;
   attachments: string;
   createdAt: string;
   updatedAt: string;
