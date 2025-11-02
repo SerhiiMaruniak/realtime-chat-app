@@ -119,21 +119,13 @@ const Message = ({ message, lastSeenMessageId }: MessageProps) => {
                   {message.content}
                 </p>
 
-                <div className={`flex items-center gap-2 ${isSent ? "justify-end" : ""}`}>
-                  <div
-                    className={`flex items-center gap-1.5 ${
-                      isSent ? "flex-row" : "flex-row-reverse"
-                    }`}
-                  >
+                <div className={`flex items-center gap-2 justify-end`}>
+                  <div className={`flex items-center gap-1.5`}>
                     {message.is_edited && (
                       <p className="text-xs text-label-text">(edited)</p>
                     )}
 
-                    <p
-                      className={`text-label-text text-xs ${
-                        isSent ? "text-right" : "text-left"
-                      }`}
-                    >
+                    <p className={`text-label-text text-xs`}>
                       {getHM({ timestamp: message.createdAt })}
                     </p>
                   </div>
