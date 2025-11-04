@@ -12,7 +12,11 @@ interface ChatProps {
   selectedImage: string | null;
   messages: messageSchema[] | null;
   unreadMessages: messageSchema[] | null;
-  contextMenu: string | null;
+  contextMenu: {
+    message: string;
+    offsetX: number;
+    offsetY: null;
+  } | null;
   isGettingUsers: boolean;
   isSendingMessage: boolean;
   isGettingMessages: boolean;
@@ -162,7 +166,7 @@ export const useChatStore = create<ChatProps>((set, get) => ({
   },
 
   showContextMenu: (data) => {
-    set({ contextMenu: data.message });
+    set({ contextMenu: data });
   },
 
   subscribeMessages: () => {

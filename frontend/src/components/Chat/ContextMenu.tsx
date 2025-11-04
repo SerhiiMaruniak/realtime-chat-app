@@ -1,25 +1,52 @@
-// import React from "react";
-
 import { useChatStore } from "../../store/useChatStore";
 import type messageSchema from "../../lib/schemas/messageSchema";
 import toast from "react-hot-toast";
+import { useEffect, useRef, useState } from "react";
 
 interface ContextProps {
   message: messageSchema;
 }
 
 const ContextMenu = ({ message }: ContextProps) => {
-  const { deleteMessage, showContextMenu } = useChatStore();
+  const [position, setPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const contextRef = useRef<HTMLDivElement | null>(null);
+
+  const { deleteMessage, contextMenu, showContextMenu } = useChatStore();
+
+  useEffect(() => {
+    if (!contextMenu) return;
+    const current = contextRef.current;
+    if (!current) return;
+
+    requestAnimationFrame(() => {
+      const { offsetWidth, offsetHeight } = current;
+      const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
+
+      let x = contextMenu.offsetX ?? 0;
+      let y = contextMenu.offsetY ?? 0;
+
+      x = x - offsetWidth;
+      y = y - offsetHeight;
+
+      if (x < 4) x = 4;
+      if (y < 4) y = 4;
+      if (x + offsetWidth > viewportWidth - 4) x = viewportWidth - offsetWidth - 4;
+      if (y + offsetHeight > viewportHeight - 4) y = viewportHeight - offsetHeight - 4;
+
+      setPosition({ x, y });
+    });
+  }, [contextMenu]);
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(message.content);
     toast.success("Copied message");
-    showContextMenu({ message: null });
+    showContextMenu(null);
   };
 
   const handleDelete = () => {
     deleteMessage({ id: message._id });
-    showContextMenu({ message: null });
+    showContextMenu(null);
   };
 
   const handleEdit = () => {
@@ -28,13 +55,20 @@ const ContextMenu = ({ message }: ContextProps) => {
         detail: { id: message._id, content: message.content },
       })
     );
-    showContextMenu({ message: null });
+    showContextMenu(null);
   };
+
+  if (!contextMenu) return null;
 
   return (
     <div
       id="context_menu"
-      className="absolute -translate-full top-2 -left-1 px-1.5 py-2 bg-spec-1-dark rounded-md animate-slidedown"
+      ref={contextRef}
+      className="absolute z-50 px-1.5 py-2 bg-secondary_dark rounded-md animate-slidedown"
+      style={{
+        left: position.x,
+        top: position.y,
+      }}
     >
       <div className="flex flex-col items-start">
         <button

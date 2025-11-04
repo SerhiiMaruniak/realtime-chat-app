@@ -49,20 +49,24 @@ const Message = ({ message, lastSeenMessageId }: MessageProps) => {
       ref={messageRef}
       className={`w-full flex ${isSent ? "justify-end" : "justify-start"} items-start`}
     >
-      <div className={`flex flex-col gap-1 ${isSent ? "items-end" : "items-start"}`}>
-        <div
-          className="relative"
-          onContextMenu={() => {
-            if (message.senderId === user?._id) showContextMenu({ message: message._id });
-          }}
-        >
+      <div
+        className={`flex flex-col gap-1 ${isSent ? "items-end" : "items-start"} relative`}
+        onContextMenu={(e) => {
+          const elt = e.currentTarget.getBoundingClientRect();
+          const x = Math.abs(elt.x - e.clientX);
+          const y = Math.abs(elt.y - e.clientY);
+
+          showContextMenu({ offsetX: x, offsetY: y, message: message._id });
+        }}
+      >
+        {message._id === contextMenu?.message && <ContextMenu message={message} />}
+
+        <div className="relative">
           {!message.is_seen && message.receiverId === user?._id && (
             <div className="absolute inset-0 bg-[rgba(81,66,111,0.09)] border-l-2 border-l-[rgba(81,66,111,0.9)] -z-10 rounded-lg" />
           )}
 
           <div className="relative z-10">
-            {message._id === contextMenu && <ContextMenu message={message} />}
-
             {message.attachments && (
               <div>
                 <img
@@ -112,7 +116,7 @@ const Message = ({ message, lastSeenMessageId }: MessageProps) => {
                 <p
                   className={`${
                     pageContext && pageContext?.screen.width < 500
-                      ? "max-w-30"
+                      ? "max-w-64"
                       : "max-w-84"
                   }`}
                 >
