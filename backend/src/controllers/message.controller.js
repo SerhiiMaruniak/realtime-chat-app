@@ -15,7 +15,9 @@ export const getUsers = async (req, res) => {
 
 export const sendMessage = async (req, res) => {
   try {
-    const { receiverId, content, attachments } = req.body;
+    const { receiverId, content, attachments, replyId: messageToReply } = req.body;
+
+    const replyMessage = await Message.findById(messageToReply);
 
     let attachmentUrl = "";
 
@@ -28,11 +30,17 @@ export const sendMessage = async (req, res) => {
       senderId: req.user._id,
       receiverId,
       content,
+      repliedMessage: replyMessage ? replyMessage._id : null,
       attachments: attachmentUrl,
       is_seen: false,
     });
 
     if (newMessage) {
+      const populatedMessage = await newMessage.populate(
+        "repliedMessage",
+        "_id content attachments"
+      );
+
       await newMessage.save();
 
       const receiverSocketIds = getReceiverSocketIds(receiverId);
@@ -46,11 +54,12 @@ export const sendMessage = async (req, res) => {
       });
 
       return res.status(201).json({
-        senderId: newMessage.senderId,
-        receiverId: newMessage.receiverId,
-        content: newMessage.content,
-        attachments: newMessage.attachments,
-        is_seen: newMessage.is_seen,
+        senderId: populatedMessage.senderId,
+        receiverId: populatedMessage.receiverId,
+        content: populatedMessage.content,
+        repliedMessage: populatedMessage.repliedMessage,
+        attachments: populatedMessage.attachments,
+        is_seen: populatedMessage.is_seen,
       });
     }
   } catch (error) {
