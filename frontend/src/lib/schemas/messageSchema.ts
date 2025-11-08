@@ -6,6 +6,11 @@ export default interface messageSchema {
   is_seen: boolean;
   is_edited: boolean;
   attachments: string;
+  repliedMessage: {
+    _id: string;
+    content: string | null;
+    attachments: string | null;
+  };
   createdAt: string;
   updatedAt: string;
 }

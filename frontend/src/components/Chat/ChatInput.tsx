@@ -17,6 +17,7 @@ const ChatInput = () => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const [replyingMessageId, setReplyingMessageId] = useState<string | null>(null);
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
 
   const { selectedChat, isSendingMessage, sendMessage, editMessage } = useChatStore();
@@ -31,13 +32,25 @@ const ChatInput = () => {
       }
     };
 
+    const onStartReply = (e: Event) => {
+      const ev = e as CustomEvent<{ id: string; content: string; attachments: string }>;
+      if (ev?.detail) {
+        setReplyingMessageId(ev.detail.id);
+        setTimeout(() => textareaRef.current?.focus(), 50);
+      }
+    };
+
     window.addEventListener("startEditMessage", onStartEdit as EventListener);
-    return () =>
+    window.addEventListener("startReplyMessage", onStartReply as EventListener);
+    return () => {
       window.removeEventListener("startEditMessage", onStartEdit as EventListener);
+      window.addEventListener("startReplyMessage", onStartReply as EventListener);
+    };
   }, []);
 
-  const cancelEdit = () => {
+  const cancelInput = () => {
     setEditingMessageId(null);
+    setReplyingMessageId(null);
     setMessageContent({ receiverId: null, content: "" });
   };
 
@@ -76,10 +89,13 @@ const ChatInput = () => {
 
     if (!imagePreview && messageContent.content === "") return;
 
+    console.log(replyingMessageId);
+
     const messageToSend = {
       receiverId: selectedChat._id,
       content: messageContent.content,
       attachments: imagePreview,
+      replyId: replyingMessageId,
     };
 
     if (editingMessageId) {
@@ -100,22 +116,24 @@ const ChatInput = () => {
     setImagePreview(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
     setEditingMessageId(null);
+    setReplyingMessageId(null);
   };
 
   return (
     <div className="w-full relative flex flex-col items-stretch px-5 py-2.5">
-      {editingMessageId && (
-        <div className="mb-2 flex items-center justify-between px-3 text-sm text-label-text">
-          <span>Editing message</span>
-          <button
-            onClick={cancelEdit}
-            aria-label="Cancel edit"
-            className="transition duration-150 text-label-text/80 hover:text-label-brighter-text cursor-pointer"
-          >
-            Cancel
-          </button>
-        </div>
-      )}
+      {editingMessageId ||
+        (replyingMessageId && (
+          <div className="mb-2 flex items-center justify-between px-3 text-sm text-label-text">
+            <span>{replyingMessageId ? "Reply" : "Edit"}</span>
+            <button
+              onClick={cancelInput}
+              aria-label="Cancel edit"
+              className="transition duration-150 text-label-text/80 hover:text-label-brighter-text cursor-pointer"
+            >
+              Cancel
+            </button>
+          </div>
+        ))}
       {imagePreview && (
         <div className="mb-2 flex items-center gap-2">
           <div className="relative">

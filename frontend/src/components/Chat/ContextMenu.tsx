@@ -38,6 +38,19 @@ const ContextMenu = ({ message }: ContextProps) => {
     });
   }, [contextMenu]);
 
+  const handleReply = async () => {
+    window.dispatchEvent(
+      new CustomEvent("startReplyMessage", {
+        detail: {
+          id: message._id,
+          content: message.content,
+          attachments: message.content,
+        },
+      })
+    );
+    showContextMenu(null);
+  };
+
   const handleCopy = async () => {
     await navigator.clipboard.writeText(message.content);
     toast.success("Copied message");
@@ -71,6 +84,12 @@ const ContextMenu = ({ message }: ContextProps) => {
       }}
     >
       <div className="flex flex-col items-start">
+        <button
+          className="w-38 text-left px-1.5 py-1 cursor-pointer text-label-text hover:bg-label-text hover:text-spec-1-dark rounded-sm"
+          onClick={handleReply}
+        >
+          Reply
+        </button>
         <button
           className="w-38 text-left px-1.5 py-1 cursor-pointer text-label-text hover:bg-label-text hover:text-spec-1-dark rounded-sm"
           onClick={handleEdit}
