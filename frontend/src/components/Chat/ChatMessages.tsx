@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useChatStore } from "../../store/useChatStore";
 import { useAuthStore } from "../../store/useAuthStore";
-import Message from "./Message";
+import Message from "./Message/Message";
 import Loader from "../Loader";
 import { getDayLabel } from "../../lib/formatDate";
 
@@ -9,7 +9,8 @@ const ChatMessages = () => {
   const { getMessages, isGettingMessages, messages, selectedChat } = useChatStore();
   const { user } = useAuthStore();
   const endOfMessages = useRef<HTMLDivElement>(null);
-
+  // TODO: display a responded message (but before in get messages i should populate replied messages)
+  // TODO: add multiple event handler
   const firstLoadRef = useRef(true);
 
   useEffect(() => {
@@ -66,7 +67,7 @@ const ChatMessages = () => {
       : -1;
 
   return (
-    <div className="flex-1 px-5 py-2.5 w-full flex flex-col items-start justify-start gap-3.5 overflow-y-auto">
+    <div className="flex-1 px-3 py-2.5 w-full flex flex-col items-start justify-start gap-3.5 overflow-y-auto">
       {sortedMessages.map((message, idx) => {
         const currentDate = getDayLabel(message.createdAt);
         const showDate = currentDate !== lastDate;

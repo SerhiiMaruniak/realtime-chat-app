@@ -1,6 +1,6 @@
 import { useContext, useState } from "react";
-import { useChatStore } from "../../store/useChatStore";
-import { PageContext } from "../../context/PageContext";
+import { useChatStore } from "../../../store/useChatStore";
+import { PageContext } from "../../../context/PageContext";
 
 const ExpandedImage = () => {
   const [zoomedIn, setZoomedIn] = useState(false);

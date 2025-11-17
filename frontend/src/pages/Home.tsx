@@ -1,9 +1,9 @@
 import Sidebar from "../components/Chat/Sidebar";
 import Chat from "../components/Chat/Chat";
 import { useChatStore } from "../store/useChatStore";
-import ExpandedImage from "../components/Chat/ExpandedImage";
 import { PageContext } from "../context/PageContext";
 import { useContext } from "react";
+import ExpandedImage from "../components/Chat/Message/ExpandedImage";
 
 const Home = () => {
   const { selectedImage, selectedChat } = useChatStore();

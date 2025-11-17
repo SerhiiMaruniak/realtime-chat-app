@@ -1,5 +1,5 @@
-import { useChatStore } from "../../store/useChatStore";
-import type messageSchema from "../../lib/schemas/messageSchema";
+import { useChatStore } from "../../../store/useChatStore";
+import type messageSchema from "../../../lib/schemas/messageSchema";
 import toast from "react-hot-toast";
 import { useEffect, useRef, useState } from "react";
 

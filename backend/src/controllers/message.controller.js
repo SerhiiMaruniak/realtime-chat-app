@@ -38,7 +38,7 @@ export const sendMessage = async (req, res) => {
     if (newMessage) {
       const populatedMessage = await newMessage.populate(
         "repliedMessage",
-        "_id content attachments"
+        "_id senderId content attachments"
       );
 
       await newMessage.save();
@@ -150,7 +150,7 @@ export const getMessages = async (req, res) => {
         { senderId: myId, receiverId: userToChatId },
         { senderId: userToChatId, receiverId: myId },
       ],
-    });
+    }).populate("repliedMessage", "_id content senderId attachments");
     res.status(200).json(messages);
   } catch (error) {
     res.status(500).json({ error: "Internal Server Error" });

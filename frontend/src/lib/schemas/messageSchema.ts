@@ -10,6 +10,7 @@ export default interface messageSchema {
     _id: string;
     content: string | null;
     attachments: string | null;
+    senderId: string;
   };
   createdAt: string;
   updatedAt: string;
