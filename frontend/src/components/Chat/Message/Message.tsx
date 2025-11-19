@@ -8,6 +8,7 @@ import { useAuthStore } from "../../../store/useAuthStore";
 import ContextMenu from "./ContextMenu";
 import RepliedMessage from "./RepliedMessage";
 import Footer from "./Footer";
+import { MessageRefsContext } from "../../../context/MessageRefsContext";
 
 interface MessageProps {
   message: messageSchema;
@@ -19,6 +20,7 @@ const Message = ({ message, lastSeenMessageId }: MessageProps) => {
   const { selectImage, setMessageSeen, contextMenu, showContextMenu } = useChatStore();
   const { user } = useAuthStore();
   const pageContext = useContext(PageContext);
+  const messageRefsContext = useContext(MessageRefsContext);
 
   const isSent = message.senderId === user?._id;
   const isSeenIndicator = isSent && message._id === lastSeenMessageId && message.is_seen;
@@ -33,6 +35,12 @@ const Message = ({ message, lastSeenMessageId }: MessageProps) => {
     () => (isSmallScreen ? "max-w-64" : "max-w-84"),
     [isSmallScreen]
   );
+
+  useEffect(() => {
+    if (!messageRefsContext) return;
+
+    messageRefsContext.messageRefs.current[message._id] = messageRef.current;
+  }, [message._id, messageRefsContext]);
 
   useEffect(() => {
     if (!message.receiverId || !user?._id || message.is_seen) return;
@@ -68,6 +76,15 @@ const Message = ({ message, lastSeenMessageId }: MessageProps) => {
     <div
       ref={messageRef}
       className={`w-full flex ${isSent ? "justify-end" : "justify-start"} items-start`}
+      style={{
+        backgroundColor:
+          messageRefsContext?.intersectedMessageId === message._id
+            ? "rgba(81, 66, 111, 0.55)"
+            : "",
+        borderRadius:
+          messageRefsContext?.intersectedMessageId === message._id ? "4px" : "",
+        transition: "all 0.2s ease",
+      }}
     >
       <div
         className={`flex flex-col gap-1 ${isSent ? "items-end" : "items-start"} relative`}
@@ -122,7 +139,6 @@ const Message = ({ message, lastSeenMessageId }: MessageProps) => {
                 ${message.attachments !== "" ? "rounded-tr-none rounded-tl-none" : ""}
               `}
             >
-              {/* {message.repliedMessage && <RepliedMessage message={message} />} */}
               <p className={messageBoxClasses}>{message.content}</p>
 
               <div className="flex items-center gap-2 justify-end">

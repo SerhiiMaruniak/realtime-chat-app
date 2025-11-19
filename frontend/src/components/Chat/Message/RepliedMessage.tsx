@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useChatStore } from "../../../store/useChatStore";
 import { useAuthStore } from "../../../store/useAuthStore";
 import ReplyCurve from "./ReplyCurve";
 import { CameraIcon } from "lucide-react";
+import { MessageRefsContext } from "../../../context/MessageRefsContext";
 
 interface ReplyProps {
   message: {
@@ -18,6 +19,7 @@ const RepliedMessage = ({ message }: ReplyProps) => {
     firstName: string;
     photoUrl: string;
   } | null>(null);
+  const messageRefsContext = useContext(MessageRefsContext);
 
   const { selectedChat } = useChatStore();
   const { user } = useAuthStore();
@@ -32,7 +34,10 @@ const RepliedMessage = ({ message }: ReplyProps) => {
   }, [message, selectedChat, user]);
 
   return (
-    <div className="w-full flex justify-start items-center gap-2 mb-0.5">
+    <div
+      className="w-full flex justify-start items-center gap-2 mb-0.5"
+      onClick={() => messageRefsContext?.moveToMessage(message._id)}
+    >
       <ReplyCurve />
       <div className="flex justify-center items-center gap-2 ml-2">
         <img
