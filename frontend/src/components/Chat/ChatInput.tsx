@@ -24,6 +24,7 @@ const ChatInput = () => {
 
   useEffect(() => {
     const onStartEdit = (e: Event) => {
+      setReplyingMessageId(null);
       const ev = e as CustomEvent<{ id: string; content: string }>;
       if (ev?.detail) {
         setEditingMessageId(ev.detail.id);
@@ -33,6 +34,8 @@ const ChatInput = () => {
     };
 
     const onStartReply = (e: Event) => {
+      setEditingMessageId(null);
+      setMessageContent((prev) => ({ ...prev, content: "" }));
       const ev = e as CustomEvent<{ id: string; content: string; attachments: string }>;
       if (ev?.detail) {
         setReplyingMessageId(ev.detail.id);
@@ -44,7 +47,7 @@ const ChatInput = () => {
     window.addEventListener("startReplyMessage", onStartReply as EventListener);
     return () => {
       window.removeEventListener("startEditMessage", onStartEdit as EventListener);
-      window.addEventListener("startReplyMessage", onStartReply as EventListener);
+      window.removeEventListener("startReplyMessage", onStartReply as EventListener);
     };
   }, []);
 
@@ -52,6 +55,8 @@ const ChatInput = () => {
     setEditingMessageId(null);
     setReplyingMessageId(null);
     setMessageContent({ receiverId: null, content: "" });
+    setImagePreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const handleInput = async (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -89,8 +94,6 @@ const ChatInput = () => {
 
     if (!imagePreview && messageContent.content === "") return;
 
-    console.log(replyingMessageId);
-
     const messageToSend = {
       receiverId: selectedChat._id,
       content: messageContent.content,
@@ -100,40 +103,32 @@ const ChatInput = () => {
 
     if (editingMessageId) {
       await editMessage({ id: editingMessageId, content: messageContent.content });
-      setEditingMessageId(null);
-      setMessageContent({ receiverId: null, content: "" });
-      setImagePreview(null);
-      if (fileInputRef.current) fileInputRef.current.value = "";
+      cancelInput();
       return;
     }
 
     await sendMessage(messageToSend);
-
-    setMessageContent({
-      receiverId: null,
-      content: "",
-    });
-    setImagePreview(null);
-    if (fileInputRef.current) fileInputRef.current.value = "";
-    setEditingMessageId(null);
-    setReplyingMessageId(null);
+    cancelInput();
   };
+
+  const currentMode = editingMessageId ? "edit" : replyingMessageId ? "reply" : "normal";
 
   return (
     <div className="w-full relative flex flex-col items-stretch px-5 py-2.5">
-      {editingMessageId ||
-        (replyingMessageId && (
-          <div className="mb-2 flex items-center justify-between px-3 text-sm text-label-text">
-            <span>{replyingMessageId ? "Reply" : "Edit"}</span>
-            <button
-              onClick={cancelInput}
-              aria-label="Cancel edit"
-              className="transition duration-150 text-label-text/80 hover:text-label-brighter-text cursor-pointer"
-            >
-              Cancel
-            </button>
-          </div>
-        ))}
+      {currentMode !== "normal" && (
+        <div className="mb-2 flex items-center justify-between px-3 text-sm text-label-text">
+          <span>
+            {currentMode === "edit" ? "Editing Message" : "Replying to Message"}
+          </span>
+          <button
+            onClick={cancelInput}
+            aria-label="Cancel"
+            className="transition duration-150 text-label-text/80 hover:text-label-brighter-text cursor-pointer"
+          >
+            Cancel
+          </button>
+        </div>
+      )}
       {imagePreview && (
         <div className="mb-2 flex items-center gap-2">
           <div className="relative">
@@ -190,10 +185,10 @@ const ChatInput = () => {
           >
             {isSendingMessage ? (
               <Loader />
-            ) : !editingMessageId ? (
-              <Send size={22} />
-            ) : (
+            ) : currentMode === "edit" ? (
               <Pencil size={22} />
+            ) : (
+              <Send size={22} />
             )}
           </button>
         </div>

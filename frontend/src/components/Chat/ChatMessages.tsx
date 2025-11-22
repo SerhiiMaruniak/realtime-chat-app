@@ -10,8 +10,6 @@ const ChatMessages = () => {
   const [intersectedMessageId, setIntersectedMessageId] = useState<string | null>(null);
 
   const endOfMessages = useRef<HTMLDivElement>(null);
-  // TODO: display a responded message (but before in get messages i should populate replied messages)
-  // TODO: add multiple event handler
   const firstLoadRef = useRef(true);
   const messageRefs = useRef<Record<string, HTMLDivElement | null>>({});
 

@@ -15,7 +15,7 @@ interface ChatProps {
   contextMenu: {
     message: string;
     offsetX: number;
-    offsetY: null;
+    offsetY: number;
   } | null;
   isGettingUsers: boolean;
   isSendingMessage: boolean;
