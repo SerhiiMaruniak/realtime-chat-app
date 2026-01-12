@@ -3,6 +3,7 @@ import type messageSchema from "../../../lib/schemas/messageSchema";
 import toast from "react-hot-toast";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { useAuthStore } from "../../../store/useAuthStore";
 
 interface ContextProps {
   message: messageSchema;
@@ -13,10 +14,14 @@ const ContextMenuPortal = ({ children }: { children: React.ReactNode }) => {
 };
 
 const ContextMenu = ({ message }: ContextProps) => {
-  const [position, setPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [position, setPosition] = useState<{ x: number; y: number }>({
+    x: 0,
+    y: 0,
+  });
   const contextRef = useRef<HTMLDivElement | null>(null);
 
   const { deleteMessage, contextMenu, showContextMenu } = useChatStore();
+  const { user } = useAuthStore();
 
   useEffect(() => {
     if (!contextMenu) return;
@@ -54,7 +59,10 @@ const ContextMenu = ({ message }: ContextProps) => {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (contextRef.current && !contextRef.current.contains(event.target as Node)) {
+      if (
+        contextRef.current &&
+        !contextRef.current.contains(event.target as Node)
+      ) {
         showContextMenu(null);
       }
     };
@@ -84,7 +92,7 @@ const ContextMenu = ({ message }: ContextProps) => {
           content: message.content,
           attachments: message.attachments,
         },
-      })
+      }),
     );
     showContextMenu(null);
   };
@@ -108,7 +116,7 @@ const ContextMenu = ({ message }: ContextProps) => {
     window.dispatchEvent(
       new CustomEvent("startEditMessage", {
         detail: { id: message._id, content: message.content },
-      })
+      }),
     );
     showContextMenu(null);
   };
@@ -136,6 +144,9 @@ const ContextMenu = ({ message }: ContextProps) => {
           <button
             className="w-38 text-left px-1.5 py-1 cursor-pointer text-label-text hover:bg-label-text hover:text-spec-1-dark rounded-sm"
             onClick={handleEdit}
+            style={{
+              display: user?._id === message.receiverId ? "none" : "block",
+            }}
           >
             Edit
           </button>
@@ -148,6 +159,9 @@ const ContextMenu = ({ message }: ContextProps) => {
           <button
             className="w-38 text-left px-1.5 py-1 cursor-pointer text-label-text hover:bg-label-text hover:text-spec-1-dark rounded-sm"
             onClick={handleDelete}
+            style={{
+              display: user?._id === message.receiverId ? "none" : "block",
+            }}
           >
             Delete
           </button>
