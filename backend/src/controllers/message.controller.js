@@ -122,7 +122,7 @@ export const editMessage = async (req, res) => {
       messageToEdit,
       { content, is_edited: true },
       { new: true }
-    );
+    ).populate("repliedMessage", "_id content senderId attachments");
 
     const receiverSocketIds = getReceiverSocketIds(updatedMessage.receiverId);
     receiverSocketIds.forEach((socketId) => {
