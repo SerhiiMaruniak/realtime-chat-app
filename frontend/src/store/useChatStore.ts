@@ -26,9 +26,9 @@ interface ChatProps {
   selectImage: (data: any) => void;
   closeImage: () => void;
   sendMessage: (data: any) => Promise<void>;
-  editMessage: (data: any) => Promise<void>;
-  getMessages: (data: any) => Promise<void>;
-  deleteMessage: (data: any) => Promise<void>;
+  editMessage: (data: { id: string; content: string }) => Promise<void>;
+  getMessages: (data: string | null) => Promise<void>;
+  deleteMessage: (id: string) => Promise<void>;
   setMessageSeen: (messageId: string) => Promise<void>;
   showContextMenu: (data: any) => void;
   subscribeMessages: () => void;
@@ -72,7 +72,7 @@ export const useChatStore = create<ChatProps>((set, get) => ({
 
     const currentUser = useAuthStore.getState().user;
     const newUnread = (get().unreadMessages || []).filter(
-      (m) => !(m.senderId === data._id && m.receiverId === currentUser?._id)
+      (m) => !(m.senderId === data._id && m.receiverId === currentUser?._id),
     );
     set({ unreadMessages: newUnread });
 
@@ -113,7 +113,7 @@ export const useChatStore = create<ChatProps>((set, get) => ({
     set({ isSendingMessage: true });
 
     try {
-      await AxiosInstance.put("/messages/edit-message", data);
+      await AxiosInstance.put(`/messages/edit-message/${data.id}`, data);
     } catch (error: any) {
       toast.error(error.response.data.error);
       console.error(error);
@@ -122,11 +122,11 @@ export const useChatStore = create<ChatProps>((set, get) => ({
     }
   },
 
-  getMessages: async (data) => {
+  getMessages: async (id) => {
     set({ isGettingMessages: true });
 
     try {
-      const response = await AxiosInstance.post("/messages/get-messages", data);
+      const response = await AxiosInstance.get(`/messages/get-messages/${id}`);
       set({ messages: response.data });
     } catch (error: any) {
       toast.error(error.response.data.error);
@@ -136,9 +136,9 @@ export const useChatStore = create<ChatProps>((set, get) => ({
     }
   },
 
-  deleteMessage: async (data) => {
+  deleteMessage: async (id) => {
     try {
-      await AxiosInstance.delete("/messages/delete-message", { data });
+      await AxiosInstance.delete(`/messages/delete-message/${id}`);
     } catch (error: any) {
       toast.error(error.response.data.error);
       console.error(error);
@@ -147,9 +147,9 @@ export const useChatStore = create<ChatProps>((set, get) => ({
 
   setMessageSeen: async (messageId: string) => {
     try {
-      await AxiosInstance.post("/messages/set-seen", { id: messageId });
+      await AxiosInstance.put(`/messages/set-seen/${messageId}`);
       const updatedMessages = (get().messages || []).map((msg) =>
-        msg._id === messageId ? { ...msg, is_seen: true } : msg
+        msg._id === messageId ? { ...msg, is_seen: true } : msg,
       );
       const newUnread = (get().unreadMessages || []).filter((m) => m._id !== messageId);
       set({ messages: updatedMessages, unreadMessages: newUnread });
@@ -210,7 +210,7 @@ export const useChatStore = create<ChatProps>((set, get) => ({
 
     socket.on("editMessage", (messageToEdit) => {
       const updatedMessages = (get().messages || []).map((message) =>
-        message._id === messageToEdit._id ? messageToEdit : message
+        message._id === messageToEdit._id ? messageToEdit : message,
       );
 
       set({ messages: updatedMessages });
@@ -227,7 +227,7 @@ export const useChatStore = create<ChatProps>((set, get) => ({
 
     socket.on("messageSeen", ({ messageId }) => {
       const updatedMessages = (get().messages || []).map((msg) =>
-        msg._id === messageId ? { ...msg, is_seen: true } : msg
+        msg._id === messageId ? { ...msg, is_seen: true } : msg,
       );
       const newUnread = (get().unreadMessages || []).filter((m) => m._id !== messageId);
       set({ messages: updatedMessages, unreadMessages: newUnread });

@@ -17,7 +17,7 @@ const ChatMessages = () => {
   const { user } = useAuthStore();
 
   useEffect(() => {
-    getMessages({ id: selectedChat?._id });
+    getMessages(selectedChat && selectedChat._id);
   }, [getMessages, selectedChat]);
 
   useEffect(() => {
@@ -32,7 +32,7 @@ const ChatMessages = () => {
   const lastSeenMessageId = (() => {
     if (!messages) return null;
     const sentMessages = messages.filter(
-      (msg) => msg.senderId === user?._id && msg.is_seen
+      (msg) => msg.senderId === user?._id && msg.is_seen,
     );
     if (sentMessages.length === 0) return null;
     return sentMessages[sentMessages.length - 1]._id;
@@ -57,11 +57,11 @@ const ChatMessages = () => {
   let lastDate: string | null = null;
 
   const sortedMessages = [...messages].sort(
-    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
   );
 
   const unreadMessages = sortedMessages.filter(
-    (msg) => msg.receiverId === user?._id && !msg.is_seen
+    (msg) => msg.receiverId === user?._id && !msg.is_seen,
   );
   const unreadCount = unreadMessages.length;
   const firstUnreadIndex =
@@ -83,7 +83,7 @@ const ChatMessages = () => {
       },
       {
         threshold: 0.5,
-      }
+      },
     );
 
     observer.observe(message);
