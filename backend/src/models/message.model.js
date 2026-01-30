@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
 const messageSchema = new mongoose.Schema(
   {
@@ -6,7 +6,9 @@ const messageSchema = new mongoose.Schema(
     receiverId: { type: String, required: true },
     content: { type: String },
     attachments: { type: String, default: "" },
+    repliedMessage: { type: Schema.Types.ObjectId, ref: "Message" },
     is_seen: { type: Boolean, default: false, required: true },
+    is_edited: { type: Boolean, default: false, required: true },
   },
   { timestamps: true }
 );

@@ -1,6 +1,7 @@
 import express from "express";
 import {
   deleteMessage,
+  editMessage,
   getMessages,
   getUsers,
   sendMessage,
@@ -15,6 +16,8 @@ router.get("/users", protectedRoute, getUsers);
 router.post("/get-messages", protectedRoute, getMessages);
 router.post("/send-message", protectedRoute, sendMessage);
 router.post("/set-seen", protectedRoute, setMessageSeen);
+
+router.put("/edit-message", protectedRoute, editMessage);
 
 router.delete("/delete-message", protectedRoute, deleteMessage);
 

@@ -9,15 +9,32 @@
   --color-label-brighter-text: #bda5ec;
   --color-input-text: #ffffff;
 
-  --animate-zoomin: zoomin 0.1s ease-in;
+  --animate-zoomin: zoomin 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  --animate-slidedown: slidedown 0.22s cubic-bezier(0.22, 1, 0.36, 1);
 
   @keyframes zoomin {
     0% {
-      transform: scale(50%);
+      transform: scale(0.9);
+      opacity: 0;
     }
-
     100% {
-      transform: scale(100%);
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  @keyframes slidedown {
+    0% {
+      transform: translateY(-12%);
+      opacity: 0;
+    }
+    60% {
+      transform: translateY(2%);
+      opacity: 0.6;
+    }
+    100% {
+      transform: translateY(0);
+      opacity: 1;
     }
   }
 }

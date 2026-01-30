@@ -15,7 +15,9 @@ export const getUsers = async (req, res) => {
 
 export const sendMessage = async (req, res) => {
   try {
-    const { receiverId, content, attachments } = req.body;
+    const { receiverId, content, attachments, replyId: messageToReply } = req.body;
+
+    const replyMessage = await Message.findById(messageToReply);
 
     let attachmentUrl = "";
 
@@ -28,11 +30,17 @@ export const sendMessage = async (req, res) => {
       senderId: req.user._id,
       receiverId,
       content,
+      repliedMessage: replyMessage ? replyMessage._id : null,
       attachments: attachmentUrl,
       is_seen: false,
     });
 
     if (newMessage) {
+      const populatedMessage = await newMessage.populate(
+        "repliedMessage",
+        "_id senderId content attachments"
+      );
+
       await newMessage.save();
 
       const receiverSocketIds = getReceiverSocketIds(receiverId);
@@ -46,11 +54,12 @@ export const sendMessage = async (req, res) => {
       });
 
       return res.status(201).json({
-        senderId: newMessage.senderId,
-        receiverId: newMessage.receiverId,
-        content: newMessage.content,
-        attachments: newMessage.attachments,
-        is_seen: newMessage.is_seen,
+        senderId: populatedMessage.senderId,
+        receiverId: populatedMessage.receiverId,
+        content: populatedMessage.content,
+        repliedMessage: populatedMessage.repliedMessage,
+        attachments: populatedMessage.attachments,
+        is_seen: populatedMessage.is_seen,
       });
     }
   } catch (error) {
@@ -92,6 +101,45 @@ export const deleteMessage = async (req, res) => {
   }
 };
 
+export const editMessage = async (req, res) => {
+  try {
+    const { id: messageToEdit, content } = req.body;
+
+    if (!messageToEdit || !content)
+      return res.status(400).json({ error: "Fields can't be empty" });
+
+    const message = await Message.findById(messageToEdit);
+
+    if (!message) {
+      return res.status(400).json({ error: "Message doesn't exist" });
+    }
+
+    if (req.user._id.toString() !== message.senderId) {
+      return res.status(400).json({ error: "You aren't the owner of this message" });
+    }
+
+    const updatedMessage = await Message.findByIdAndUpdate(
+      messageToEdit,
+      { content, is_edited: true },
+      { new: true }
+    ).populate("repliedMessage", "_id content senderId attachments");
+
+    const receiverSocketIds = getReceiverSocketIds(updatedMessage.receiverId);
+    receiverSocketIds.forEach((socketId) => {
+      io.to(socketId).emit("editMessage", updatedMessage);
+    });
+
+    const senderSocketIds = getReceiverSocketIds(req.user._id.toString());
+    senderSocketIds.forEach((socketId) => {
+      io.to(socketId).emit("editMessage", updatedMessage);
+    });
+    res.status(201).send();
+  } catch (error) {
+    res.status(500).json({ error: "Internal Server Error" });
+    console.error(error);
+  }
+};
+
 export const getMessages = async (req, res) => {
   try {
     const { id: userToChatId } = req.body;
@@ -102,7 +150,7 @@ export const getMessages = async (req, res) => {
         { senderId: myId, receiverId: userToChatId },
         { senderId: userToChatId, receiverId: myId },
       ],
-    });
+    }).populate("repliedMessage", "_id content senderId attachments");
     res.status(200).json(messages);
   } catch (error) {
     res.status(500).json({ error: "Internal Server Error" });

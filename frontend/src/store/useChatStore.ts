@@ -12,6 +12,11 @@ interface ChatProps {
   selectedImage: string | null;
   messages: messageSchema[] | null;
   unreadMessages: messageSchema[] | null;
+  contextMenu: {
+    message: string;
+    offsetX: number;
+    offsetY: number;
+  } | null;
   isGettingUsers: boolean;
   isSendingMessage: boolean;
   isGettingMessages: boolean;
@@ -21,9 +26,11 @@ interface ChatProps {
   selectImage: (data: any) => void;
   closeImage: () => void;
   sendMessage: (data: any) => Promise<void>;
+  editMessage: (data: any) => Promise<void>;
   getMessages: (data: any) => Promise<void>;
   deleteMessage: (data: any) => Promise<void>;
   setMessageSeen: (messageId: string) => Promise<void>;
+  showContextMenu: (data: any) => void;
   subscribeMessages: () => void;
   unsubscribeMessages: () => void;
 }
@@ -41,6 +48,7 @@ export const useChatStore = create<ChatProps>((set, get) => ({
       return null;
     }
   })(),
+  contextMenu: null,
   isGettingUsers: false,
   isGettingMessages: false,
   isSendingMessage: false,
@@ -101,6 +109,19 @@ export const useChatStore = create<ChatProps>((set, get) => ({
     }
   },
 
+  editMessage: async (data) => {
+    set({ isSendingMessage: true });
+
+    try {
+      await AxiosInstance.put("/messages/edit-message", data);
+    } catch (error: any) {
+      toast.error(error.response.data.error);
+      console.error(error);
+    } finally {
+      set({ isSendingMessage: false });
+    }
+  },
+
   getMessages: async (data) => {
     set({ isGettingMessages: true });
 
@@ -144,11 +165,16 @@ export const useChatStore = create<ChatProps>((set, get) => ({
     }
   },
 
+  showContextMenu: (data) => {
+    set({ contextMenu: data });
+  },
+
   subscribeMessages: () => {
     const socket = useAuthStore.getState().socket;
     if (!socket) return;
 
     socket.off("newMessage");
+    socket.off("editMessage");
     socket.off("deleteMessage");
     socket.off("messageSeen");
 
@@ -182,6 +208,14 @@ export const useChatStore = create<ChatProps>((set, get) => ({
       }
     });
 
+    socket.on("editMessage", (messageToEdit) => {
+      const updatedMessages = (get().messages || []).map((message) =>
+        message._id === messageToEdit._id ? messageToEdit : message
+      );
+
+      set({ messages: updatedMessages });
+    });
+
     socket.on("deleteMessage", (messageToDelete) => {
       set({
         messages: [
@@ -208,6 +242,7 @@ export const useChatStore = create<ChatProps>((set, get) => ({
   unsubscribeMessages: () => {
     const socket = useAuthStore.getState().socket;
     socket?.off("newMessage");
+    socket?.off("editMessage");
     socket?.off("deleteMessage");
     socket?.off("messageSeen");
   },

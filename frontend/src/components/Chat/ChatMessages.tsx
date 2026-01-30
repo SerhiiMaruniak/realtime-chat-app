@@ -1,16 +1,20 @@
-import { useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useChatStore } from "../../store/useChatStore";
 import { useAuthStore } from "../../store/useAuthStore";
-import Message from "./Message";
+import Message from "./Message/Message";
 import Loader from "../Loader";
 import { getDayLabel } from "../../lib/formatDate";
+import { MessageRefsContext } from "../../context/MessageRefsContext";
 
 const ChatMessages = () => {
+  const [intersectedMessageId, setIntersectedMessageId] = useState<string | null>(null);
+
+  const endOfMessages = useRef<HTMLDivElement>(null);
+  const firstLoadRef = useRef(true);
+  const messageRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
   const { getMessages, isGettingMessages, messages, selectedChat } = useChatStore();
   const { user } = useAuthStore();
-  const endOfMessages = useRef<HTMLDivElement>(null);
-
-  const firstLoadRef = useRef(true);
 
   useEffect(() => {
     getMessages({ id: selectedChat?._id });
@@ -65,47 +69,73 @@ const ChatMessages = () => {
       ? sortedMessages.findIndex((msg) => msg.receiverId === user?._id && !msg.is_seen)
       : -1;
 
+  const moveToMessage = (messageId: string) => {
+    const message = messageRefs.current[messageId];
+    if (!message) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          observer.unobserve(message);
+          setIntersectedMessageId(messageId);
+          setTimeout(() => setIntersectedMessageId(null), 1500);
+        }
+      },
+      {
+        threshold: 0.5,
+      }
+    );
+
+    observer.observe(message);
+
+    message.scrollIntoView({ behavior: "smooth" });
+  };
+
   return (
-    <div className="flex-1 px-5 py-2.5 w-full flex flex-col items-start justify-start gap-3.5 overflow-y-auto">
-      {sortedMessages.map((message, idx) => {
-        const currentDate = getDayLabel(message.createdAt);
-        const showDate = currentDate !== lastDate;
-        lastDate = currentDate;
-        const showUnreadSeparator = idx === firstUnreadIndex;
+    <MessageRefsContext.Provider
+      value={{ messageRefs, moveToMessage, intersectedMessageId }}
+    >
+      <div className="flex-1 px-3 py-2.5 w-full flex flex-col items-start justify-start gap-3.5 overflow-y-auto">
+        {sortedMessages.map((message, idx) => {
+          const currentDate = getDayLabel(message.createdAt);
+          const showDate = currentDate !== lastDate;
+          lastDate = currentDate;
+          const showUnreadSeparator = idx === firstUnreadIndex;
 
-        return (
-          <div key={message._id} className="w-full px-2 flex flex-col items-start">
-            {showDate && (
-              <div className="my-3 flex items-center w-full">
-                <div className="flex-1 border-t border-spec-1-dark" />
-                <span className="px-3 text-sm text-label-text">{currentDate}</span>
-                <div className="flex-1 border-t border-spec-1-dark" />
-              </div>
-            )}
-
-            {showUnreadSeparator && unreadCount > 0 && (
-              <div className="my-3 flex items-center w-full">
-                <div className="flex-1 border-t border-spec-1-dark" />
-                <span className="px-3 text-sm text-label-text">{`${unreadCount} unread message${
-                  unreadCount === 1 ? "" : "s"
-                }`}</span>
-                <div className="flex-1 border-t border-spec-1-dark" />
-              </div>
-            )}
-
-            <div className="w-full relative">
-              {!message.is_seen && message.receiverId === user?._id && (
-                <div className="absolute inset-0 left-0 right-0 bg-[rgba(81,66,111,0.09)] border-l-2 border-l-label-text -z-10" />
+          return (
+            <div key={message._id} className="w-full px-2 flex flex-col items-start">
+              {showDate && (
+                <div className="my-3 flex items-center w-full">
+                  <div className="flex-1 border-t border-spec-1-dark" />
+                  <span className="px-3 text-sm text-label-text">{currentDate}</span>
+                  <div className="flex-1 border-t border-spec-1-dark" />
+                </div>
               )}
-              <div className="relative z-10">
-                <Message message={message} lastSeenMessageId={lastSeenMessageId} />
+
+              {showUnreadSeparator && unreadCount > 0 && (
+                <div className="my-3 flex items-center w-full">
+                  <div className="flex-1 border-t border-spec-1-dark" />
+                  <span className="px-3 text-sm text-label-text">{`${unreadCount} unread message${
+                    unreadCount === 1 ? "" : "s"
+                  }`}</span>
+                  <div className="flex-1 border-t border-spec-1-dark" />
+                </div>
+              )}
+
+              <div className="w-full relative">
+                {!message.is_seen && message.receiverId === user?._id && (
+                  <div className="absolute inset-0 left-0 right-0 bg-[rgba(81,66,111,0.09)] border-l-2 border-l-label-text -z-10" />
+                )}
+                <div className="relative z-10">
+                  <Message message={message} lastSeenMessageId={lastSeenMessageId} />
+                </div>
               </div>
             </div>
-          </div>
-        );
-      })}
-      <div ref={endOfMessages}></div>
-    </div>
+          );
+        })}
+        <div ref={endOfMessages}></div>
+      </div>
+    </MessageRefsContext.Provider>
   );
 };
 
