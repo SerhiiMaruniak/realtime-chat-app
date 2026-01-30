@@ -13,9 +13,9 @@ const router = express.Router();
 router.get("/friends", protectedRoute, getFriends);
 router.get("/requests", protectedRoute, getFriendRequests);
 
-router.post("/send-request", protectedRoute, sendFriendRequest);
-router.post("/manage-request", protectedRoute, manageFriendRequest);
+router.post("/send-request/:id", protectedRoute, sendFriendRequest);
+router.put("/manage-request/:id", protectedRoute, manageFriendRequest);
 
-router.delete("/delete-friend", protectedRoute, deleteFriend);
+router.delete("/delete-friend/:id", protectedRoute, deleteFriend);
 
 export default router;

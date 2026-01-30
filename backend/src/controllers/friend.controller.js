@@ -4,7 +4,7 @@ import User from "../models/user.model.js";
 
 export const sendFriendRequest = async (req, res) => {
   try {
-    const { id: receiverId } = req.body;
+    const receiverId = req.params.id;
 
     const sender = await User.findById(req.user._id);
     const receiver = await User.findById(receiverId);
@@ -70,7 +70,8 @@ export const getFriendRequests = async (req, res) => {
 
 export const manageFriendRequest = async (req, res) => {
   try {
-    const { action, id: requestId } = req.body;
+    const requestId = req.params.id;
+    const { action } = req.body;
 
     switch (action) {
       case "accept": {
@@ -106,10 +107,10 @@ export const manageFriendRequest = async (req, res) => {
         await friendRequest.deleteOne();
 
         const populatedSender = await User.findById(senderId).select(
-          "_id firstName lastName email photoUrl"
+          "_id firstName lastName email photoUrl",
         );
         const populatedReceiver = await User.findById(receiverId).select(
-          "_id firstName lastName email photoUrl"
+          "_id firstName lastName email photoUrl",
         );
 
         const receiverSocketId = getReceiverSocketIds(receiverId);
@@ -165,7 +166,7 @@ export const getFriends = async (req, res) => {
   try {
     const user = await User.findById(req.user._id).populate(
       "friendsList",
-      "_id firstName lastName email photoUrl"
+      "_id firstName lastName email photoUrl",
     );
 
     res.status(200).json(user.friendsList);
@@ -177,7 +178,7 @@ export const getFriends = async (req, res) => {
 
 export const deleteFriend = async (req, res) => {
   try {
-    const friendToDelete = req.query.id;
+    const friendToDelete = req.params.id;
 
     const myUser = await User.findById(req.user._id);
     const friendUser = await User.findById(friendToDelete);
