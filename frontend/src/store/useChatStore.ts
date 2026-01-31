@@ -21,16 +21,23 @@ interface ChatProps {
   isSendingMessage: boolean;
   isGettingMessages: boolean;
   getUsers: () => Promise<void>;
-  selectChat: (data: any) => void;
+  selectChat: (data: User) => void;
   closeChat: () => void;
-  selectImage: (data: any) => void;
+  selectImage: (data: string) => void;
   closeImage: () => void;
-  sendMessage: (data: any) => Promise<void>;
+  sendMessage: (data: {
+    receiverId: string;
+    content: string;
+    attachments: string | null;
+    replyId: string | null;
+  }) => Promise<void>;
   editMessage: (data: { id: string; content: string }) => Promise<void>;
   getMessages: (data: string | null) => Promise<void>;
   deleteMessage: (id: string) => Promise<void>;
   setMessageSeen: (messageId: string) => Promise<void>;
-  showContextMenu: (data: any) => void;
+  showContextMenu: (
+    data: { offsetX: number; offsetY: number; message: string } | null,
+  ) => void;
   subscribeMessages: () => void;
   unsubscribeMessages: () => void;
 }
