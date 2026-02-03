@@ -59,10 +59,7 @@ const ContextMenu = ({ message }: ContextProps) => {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        contextRef.current &&
-        !contextRef.current.contains(event.target as Node)
-      ) {
+      if (contextRef.current && !contextRef.current.contains(event.target as Node)) {
         showContextMenu(null);
       }
     };
@@ -108,7 +105,7 @@ const ContextMenu = ({ message }: ContextProps) => {
   };
 
   const handleDelete = () => {
-    deleteMessage({ id: message._id });
+    deleteMessage(message._id);
     showContextMenu(null);
   };
 

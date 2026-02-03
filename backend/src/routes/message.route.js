@@ -12,13 +12,13 @@ import protectedRoute from "../middleware/protectedRoute.js";
 const router = express.Router();
 
 router.get("/users", protectedRoute, getUsers);
+router.get("/get-messages/:id", protectedRoute, getMessages);
 
-router.post("/get-messages", protectedRoute, getMessages);
 router.post("/send-message", protectedRoute, sendMessage);
-router.post("/set-seen", protectedRoute, setMessageSeen);
 
-router.put("/edit-message", protectedRoute, editMessage);
+router.put("/set-seen/:id", protectedRoute, setMessageSeen);
+router.put("/edit-message/:id", protectedRoute, editMessage);
 
-router.delete("/delete-message", protectedRoute, deleteMessage);
+router.delete("/delete-message/:id", protectedRoute, deleteMessage);
 
 export default router;

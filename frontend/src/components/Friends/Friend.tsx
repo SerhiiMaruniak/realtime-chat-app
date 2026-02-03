@@ -34,7 +34,7 @@ const Friend = ({ friend }: FriendProps) => {
           className="duration-150 transition-all p-1 hover:bg-spec-1-dark rounded-sm cursor-pointer"
           title="Delete Friend"
           aria-label="Delete Friend"
-          onClick={() => deleteFriend({ id: friend._id })}
+          onClick={() => deleteFriend(friend._id)}
         >
           <UserX className="text-label-text" />
         </button>

@@ -20,12 +20,21 @@ interface AuthStore {
   isForgetingPassword: boolean;
   isResetingPassword: boolean;
   checkAuth: () => Promise<void>;
-  signUp: (data: any) => Promise<void>;
-  signIn: (data: any) => Promise<void>;
+  signUp: (data: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
+  }) => Promise<void>;
+  signIn: (data: { email: string; password: string }) => Promise<void>;
   logout: () => Promise<void>;
-  updateProfile: (data: any) => Promise<void>;
-  forgotPassword: (data: any) => Promise<void>;
-  resetPassword: (data: any) => Promise<void>;
+  updateProfile: (data: {
+    firstName?: string | undefined;
+    lastName?: string | undefined;
+    profilePic: string | null;
+  }) => Promise<void>;
+  forgotPassword: (data: { email: string }) => Promise<void>;
+  resetPassword: (data: { id: string | null; password: string }) => Promise<void>;
   connectSocket: () => void;
   disconnectSocket: () => void;
 }

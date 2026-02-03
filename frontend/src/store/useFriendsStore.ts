@@ -15,10 +15,10 @@ interface FriendsProps {
   isDeletingFriend: string | null;
   getFriends: () => Promise<void>;
   getRequests: () => Promise<void>;
-  sendRequest: (data: any) => Promise<void>;
-  manageRequest: (data: any) => Promise<void>;
-  updateFriend: (data: any) => void;
-  deleteFriend: (data: any) => Promise<void>;
+  sendRequest: (id: string) => Promise<void>;
+  manageRequest: (data: { id: string; action: string }) => Promise<void>;
+  updateFriend: (data: User) => void;
+  deleteFriend: (id: string) => Promise<void>;
   subscribeFriends: () => void;
   unsubscribeFriends: () => void;
 }
@@ -54,11 +54,11 @@ export const useFriendsStore = create<FriendsProps>((set, get) => ({
     }
   },
 
-  sendRequest: async (data) => {
+  sendRequest: async (id) => {
     set({ isSendingFriendRequest: true });
 
     try {
-      await AxiosInstance.post("/friends/send-request", data);
+      await AxiosInstance.post(`/friends/send-request/${id}`);
       toast.success("Sent friend request successfully");
     } catch (error: any) {
       toast.error(error.response.data.error);
@@ -72,7 +72,7 @@ export const useFriendsStore = create<FriendsProps>((set, get) => ({
     set({ isManagingRequest: data.id });
 
     try {
-      await AxiosInstance.post("/friends/manage-request", data);
+      await AxiosInstance.put(`/friends/manage-request/${data.id}`, data);
     } catch (error: any) {
       toast.error(error.response.data.error);
       console.error(error);
@@ -87,11 +87,11 @@ export const useFriendsStore = create<FriendsProps>((set, get) => ({
         state.friends && state.friends.map((f) => (f._id === friend._id ? friend : f)),
     })),
 
-  deleteFriend: async (data) => {
-    set({ isDeletingFriend: data.id });
+  deleteFriend: async (id) => {
+    set({ isDeletingFriend: id });
 
     try {
-      const response = await AxiosInstance.delete(`/friends/delete-friend?id=${data.id}`);
+      const response = await AxiosInstance.delete(`/friends/delete-friend/${id}`);
       toast.success(response.data.message);
     } catch (error: any) {
       toast.error(error.response.data.error);
@@ -113,7 +113,7 @@ export const useFriendsStore = create<FriendsProps>((set, get) => ({
         friends: [...(state.friends || []), newFriend],
         friendRequests: [
           ...(state.friendRequests.filter(
-            (request) => request._id !== friendRequest._id
+            (request) => request._id !== friendRequest._id,
           ) || []),
         ],
       }));
@@ -123,7 +123,7 @@ export const useFriendsStore = create<FriendsProps>((set, get) => ({
       set((state) => ({
         friendRequests: [
           ...(state.friendRequests.filter(
-            (request) => request._id !== friendRequest._id
+            (request) => request._id !== friendRequest._id,
           ) || []),
         ],
       }));

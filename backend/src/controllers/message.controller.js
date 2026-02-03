@@ -38,7 +38,7 @@ export const sendMessage = async (req, res) => {
     if (newMessage) {
       const populatedMessage = await newMessage.populate(
         "repliedMessage",
-        "_id senderId content attachments"
+        "_id senderId content attachments",
       );
 
       await newMessage.save();
@@ -70,7 +70,7 @@ export const sendMessage = async (req, res) => {
 
 export const deleteMessage = async (req, res) => {
   try {
-    const { id: messageToDelete } = req.body;
+    const messageToDelete = req.params.id;
 
     const message = await Message.findById(messageToDelete);
 
@@ -103,7 +103,8 @@ export const deleteMessage = async (req, res) => {
 
 export const editMessage = async (req, res) => {
   try {
-    const { id: messageToEdit, content } = req.body;
+    const messageToEdit = req.params.id;
+    const { content } = req.body;
 
     if (!messageToEdit || !content)
       return res.status(400).json({ error: "Fields can't be empty" });
@@ -121,7 +122,7 @@ export const editMessage = async (req, res) => {
     const updatedMessage = await Message.findByIdAndUpdate(
       messageToEdit,
       { content, is_edited: true },
-      { new: true }
+      { new: true },
     ).populate("repliedMessage", "_id content senderId attachments");
 
     const receiverSocketIds = getReceiverSocketIds(updatedMessage.receiverId);
@@ -142,7 +143,7 @@ export const editMessage = async (req, res) => {
 
 export const getMessages = async (req, res) => {
   try {
-    const { id: userToChatId } = req.body;
+    const userToChatId = req.params.id;
     const myId = req.user._id;
 
     const messages = await Message.find({
@@ -160,7 +161,7 @@ export const getMessages = async (req, res) => {
 
 export const setMessageSeen = async (req, res) => {
   try {
-    const { id: messageId } = req.body;
+    const messageId = req.params.id;
     const message = await Message.findById(messageId);
 
     if (!message) {

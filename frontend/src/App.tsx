@@ -54,7 +54,7 @@ const App = () => {
       const target = e.target as HTMLElement | null;
 
       if (!target || !target.closest("#context_menu")) {
-        showContextMenu({ message: null });
+        showContextMenu(null);
       }
     };
 

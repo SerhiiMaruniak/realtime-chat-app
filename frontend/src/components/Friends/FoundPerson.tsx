@@ -29,7 +29,7 @@ const FoundPerson = ({ user }: PersonProps) => {
     const foundReq = friendRequests?.find(
       (req) =>
         (req.senderId === sender._id && req.receiverId === user._id) ||
-        (req.receiverId === sender._id && req.senderId === user._id)
+        (req.receiverId === sender._id && req.senderId === user._id),
     );
 
     if (!foundReq) {
@@ -47,7 +47,7 @@ const FoundPerson = ({ user }: PersonProps) => {
         className="duration-150 transition-all p-1 hover:bg-spec-1-dark rounded-sm cursor-pointer"
         title="Add friend"
         aria-label="Add friend"
-        onClick={() => sendRequest({ id: user._id })}
+        onClick={() => sendRequest(user._id)}
       >
         <UserPlus2 className="text-label-text" />
       </button>
