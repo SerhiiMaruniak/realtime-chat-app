@@ -145,14 +145,45 @@ export const getMessages = async (req, res) => {
   try {
     const userToChatId = req.params.id;
     const myId = req.user._id;
+    const { lastId } = req.query;
 
-    const messages = await Message.find({
+    const query = {
       $or: [
         { senderId: myId, receiverId: userToChatId },
         { senderId: userToChatId, receiverId: myId },
       ],
-    }).populate("repliedMessage", "_id content senderId attachments");
-    res.status(200).json(messages);
+    };
+
+    if (lastId) {
+      const lastMessage = await Message.findById(lastId);
+      if (lastMessage) {
+        query._id = { $lt: lastMessage._id };
+      }
+    }
+
+    const messages = await Message.find(query)
+      .populate("repliedMessage", "_id content senderId attachments")
+      .sort({ _id: -1 })
+      .limit(20);
+
+    let hasMore = false;
+    if (messages.length === 20) {
+      const nextQuery = {
+        $or: [
+          { senderId: myId, receiverId: userToChatId },
+          { senderId: userToChatId, receiverId: myId },
+        ],
+        _id: { $lt: messages[messages.length - 1]._id },
+      };
+      const nextMessages = await Message.findOne(nextQuery);
+      hasMore = !!nextMessages;
+    }
+
+    res.status(200).json({
+      messages: messages.reverse(),
+      hasMore,
+      lastId: messages.length > 0 ? messages[0]._id : null,
+    });
   } catch (error) {
     res.status(500).json({ error: "Internal Server Error" });
     console.error(error);
