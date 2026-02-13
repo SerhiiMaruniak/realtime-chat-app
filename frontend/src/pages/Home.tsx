@@ -1,26 +1,26 @@
+import { useState } from "react";
 import Sidebar from "../components/Chat/Sidebar";
 import Chat from "../components/Chat/Chat";
 import { useChatStore } from "../store/useChatStore";
-import { PageContext } from "../context/PageContext";
-import { useContext } from "react";
 import ExpandedImage from "../components/Chat/Message/ExpandedImage";
+import Navbar from "../components/Home/Navbar";
+import { HomeContext, type HomeContextValue } from "../context/HomeContext";
 
 const Home = () => {
+  const [homeContextValue, setHomeContextValue] = useState<HomeContextValue>("Chat");
   const { selectedImage, selectedChat } = useChatStore();
-  const pageContext = useContext(PageContext);
 
   return (
-    <>
+    <HomeContext.Provider value={{ setHomeContextValue, value: homeContextValue }}>
       {selectedImage && <ExpandedImage />}
       <div className="w-full h-full flex">
-        {pageContext && pageContext.screen.width < 500 ? (
-          !selectedChat && <Sidebar />
-        ) : (
-          <Sidebar />
-        )}
-        <Chat />
+        <Sidebar />
+        <div className="flex flex-col w-full items-center justify-between">
+          {!selectedChat && <Navbar />}
+          <Chat />
+        </div>
       </div>
-    </>
+    </HomeContext.Provider>
   );
 };
 
