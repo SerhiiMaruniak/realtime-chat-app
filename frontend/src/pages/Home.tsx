@@ -40,7 +40,7 @@ const Home = () => {
       {selectedImage && <ExpandedImage />}
       <div className="w-full h-full flex">
         <Sidebar />
-        <div className="flex flex-col w-full items-center justify-between">
+        <div className="flex flex-col w-full items-start justify-start">
           {!selectedChat && <Navbar />}
           {selectedPage}
         </div>

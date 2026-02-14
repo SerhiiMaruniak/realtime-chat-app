@@ -20,7 +20,6 @@ interface ChatProps {
   isGettingUsers: boolean;
   isSendingMessage: boolean;
   isGettingMessages: boolean;
-  getUsers: () => Promise<void>;
   selectChat: (data: User) => void;
   closeChat: () => void;
   selectImage: (data: string) => void;
@@ -59,20 +58,6 @@ export const useChatStore = create<ChatProps>((set, get) => ({
   isGettingUsers: false,
   isGettingMessages: false,
   isSendingMessage: false,
-
-  getUsers: async () => {
-    set({ isGettingMessages: true });
-
-    try {
-      const response = await AxiosInstance.get("/messages/users");
-      set({ users: response.data });
-    } catch (error: any) {
-      toast.error(error.response.data.error);
-      console.error("Error fetching users");
-    } finally {
-      set({ isGettingMessages: false });
-    }
-  },
 
   selectChat: async (data) => {
     set({ selectedChat: data });

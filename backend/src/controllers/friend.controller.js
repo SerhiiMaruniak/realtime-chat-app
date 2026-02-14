@@ -213,3 +213,19 @@ export const deleteFriend = async (req, res) => {
     console.error(error);
   }
 };
+
+export const getUsers = async (req, res) => {
+  const { id, name } = req.query;
+
+  if (id === "" && name === "") {
+    return res.status(400).json({ error: "ID or name can't be empty" });
+  }
+
+  let users = null;
+
+  // if (id !== "") {
+  //   users = await User.findById(id)
+  // }
+
+  // users = await User.find()
+};
