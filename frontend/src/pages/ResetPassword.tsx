@@ -8,8 +8,7 @@ import { useAuthStore } from "../store/useAuthStore";
 
 const ResetPassword = () => {
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
+    username: "",
     email: "",
     password: "",
   });
@@ -38,7 +37,7 @@ const ResetPassword = () => {
       }),
       {
         password: formData.password,
-      }
+      },
     );
 
     if (validated.error) {

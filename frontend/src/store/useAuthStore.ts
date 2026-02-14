@@ -20,17 +20,11 @@ interface AuthStore {
   isForgetingPassword: boolean;
   isResetingPassword: boolean;
   checkAuth: () => Promise<void>;
-  signUp: (data: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    password: string;
-  }) => Promise<void>;
+  signUp: (data: { username: string; email: string; password: string }) => Promise<void>;
   signIn: (data: { email: string; password: string }) => Promise<void>;
   logout: () => Promise<void>;
   updateProfile: (data: {
-    firstName?: string | undefined;
-    lastName?: string | undefined;
+    username?: string | undefined;
     profilePic: string | null;
   }) => Promise<void>;
   forgotPassword: (data: { email: string }) => Promise<void>;

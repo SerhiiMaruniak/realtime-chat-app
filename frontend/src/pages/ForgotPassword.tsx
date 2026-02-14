@@ -9,8 +9,7 @@ import FormDistraction from "../components/Form/FormDistraction";
 
 const ForgotPasword = () => {
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
+    username: "",
     email: "",
     password: "",
   });
@@ -29,7 +28,7 @@ const ForgotPasword = () => {
       }),
       {
         email: formData.email,
-      }
+      },
     );
 
     if (validated.error) {

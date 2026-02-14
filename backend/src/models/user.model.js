@@ -3,8 +3,7 @@ import crypto from "node:crypto";
 
 const userSchema = new mongoose.Schema(
   {
-    firstName: { type: String, required: true },
-    lastName: { type: String, required: true },
+    username: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true, minLength: 6 },
     photoUrl: { type: String, default: "" },
@@ -12,7 +11,7 @@ const userSchema = new mongoose.Schema(
     resetToken: { type: String },
     resetTokenExpiresAt: { type: Date },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 userSchema.methods.generateResetHash = function () {

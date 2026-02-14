@@ -48,7 +48,7 @@ const Sidebar = () => {
 
       setCurrentWidth(newWidth);
     },
-    [isResizing, startX, startWidth]
+    [isResizing, startX, startWidth],
   );
 
   useEffect(() => {
@@ -141,14 +141,15 @@ const Sidebar = () => {
         ) : friends ? (
           friends
             .filter((friend) => {
-              const fullName = `${friend.firstName} ${friend.lastName}`.toLowerCase();
-              return fullName.includes(filteredFriends.toLowerCase());
+              return friend.username
+                .toLowerCase()
+                .includes(filteredFriends.toLowerCase());
             })
             .map((friend) => {
               let filteredUnreadMessages = null;
               if (messages && messages.length !== 0) {
                 filteredUnreadMessages = messages?.filter(
-                  (message) => message.senderId === friend._id && !message.is_seen
+                  (message) => message.senderId === friend._id && !message.is_seen,
                 );
               }
 

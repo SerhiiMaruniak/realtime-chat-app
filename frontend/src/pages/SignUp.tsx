@@ -10,8 +10,7 @@ import { SignUpSchema } from "../lib/schemas/schemas";
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
+    username: "",
     email: "",
     password: "",
   });
@@ -25,8 +24,7 @@ const SignUp = () => {
     e.preventDefault();
 
     const validated = z.safeParse(SignUpSchema, {
-      firstName: formData.firstName,
-      lastName: formData.lastName,
+      username: formData.username,
       email: formData.email,
       password: formData.password,
     });
@@ -37,8 +35,7 @@ const SignUp = () => {
     }
 
     signUp({
-      firstName: validated.data.firstName,
-      lastName: validated.data.lastName,
+      username: validated.data.username,
       email: validated.data.email,
       password: validated.data.password,
     });
@@ -59,15 +56,8 @@ const SignUp = () => {
         <form className="w-full" onSubmit={handleSubmit} noValidate>
           <div className="flex flex-col items-center justify-center gap-6 w-full my-6">
             <FormInput
-              placeholder="First Name"
-              inputFor="firstName"
-              formData={formData}
-              setFormData={setFormData}
-              formError={formError}
-            />
-            <FormInput
-              placeholder="Last Name"
-              inputFor="lastName"
+              placeholder="Username"
+              inputFor="username"
               formData={formData}
               setFormData={setFormData}
               formError={formError}

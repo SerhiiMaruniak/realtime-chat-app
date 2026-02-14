@@ -12,8 +12,7 @@ const Settings = () => {
   const { user, updateProfile, isUpdatingProfile } = useAuthStore();
 
   const [formData, setFormData] = useState({
-    firstName: user?.firstName || "",
-    lastName: user?.lastName || "",
+    username: user?.username || "",
     email: "",
     password: "",
   });
@@ -38,16 +37,10 @@ const Settings = () => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (
-      formData.firstName === user?.firstName &&
-      formData.lastName === user?.lastName &&
-      !imagePreview
-    )
-      return;
+    if (formData.username === user?.username && !imagePreview) return;
 
     const validated = z.safeParse(UpdateProfileSchema, {
-      firstName: formData.firstName,
-      lastName: formData.lastName,
+      username: formData.username,
     });
 
     if (validated.error) {
@@ -85,8 +78,8 @@ const Settings = () => {
                 imagePreview
                   ? imagePreview
                   : user?.photoUrl !== ""
-                  ? user?.photoUrl
-                  : "avatar_placeholder.png"
+                    ? user?.photoUrl
+                    : "avatar_placeholder.png"
               }
               alt="avatar"
               className="w-24 h-24 rounded-full object-cover"
@@ -108,14 +101,7 @@ const Settings = () => {
             <div className="flex flex-col justify-center items-center gap-5 w-full">
               <FormInput
                 placeholder="First Name"
-                inputFor="firstName"
-                formData={formData}
-                setFormData={setFormData}
-                formError={formError}
-              />
-              <FormInput
-                placeholder="Last Name"
-                inputFor="lastName"
+                inputFor="username"
                 formData={formData}
                 setFormData={setFormData}
                 formError={formError}

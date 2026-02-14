@@ -1,11 +1,7 @@
 import * as z from "zod";
 
 export const SignUpSchema = z.object({
-  firstName: z
-    .string()
-    .min(1, "This field can't be empty")
-    .max(64, "This field can't be longer than 64 characters"),
-  lastName: z
+  username: z
     .string()
     .min(1, "This field can't be empty")
     .max(64, "This field can't be longer than 64 characters"),
@@ -29,12 +25,7 @@ export const SignInSchema = z.object({
 });
 
 export const UpdateProfileSchema = z.object({
-  firstName: z
-    .string()
-    .min(1, "This field can't be empty")
-    .max(64, "This field can't be longer than 64 characters")
-    .optional(),
-  lastName: z
+  username: z
     .string()
     .min(1, "This field can't be empty")
     .max(64, "This field can't be longer than 64 characters")

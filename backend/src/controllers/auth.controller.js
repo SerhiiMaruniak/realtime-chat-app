@@ -14,9 +14,9 @@ import EmailLog from "../models/emaillog.model.js";
 
 export const signUp = async (req, res) => {
   try {
-    const { firstName, lastName, email, password } = req.body;
+    const { username, email, password } = req.body;
 
-    if (!firstName || !lastName || !email || !password) {
+    if (!username || !email || !password) {
       return res.status(400).json({ error: "Fields can't be empty!" });
     }
     if (password.length < 6) {
@@ -33,8 +33,7 @@ export const signUp = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     const newUser = new User({
-      firstName,
-      lastName,
+      username,
       email,
       password: hashedPassword,
     });
@@ -45,8 +44,7 @@ export const signUp = async (req, res) => {
 
       return res.status(201).json({
         _id: newUser._id,
-        firstName: newUser.firstName,
-        lastName: newUser.lastName,
+        username: newUser.username,
         email: newUser.email,
         password: newUser.password,
         photoUrl: newUser.photoUrl,
@@ -81,8 +79,7 @@ export const signIn = async (req, res) => {
 
     res.status(201).json({
       _id: user._id,
-      firstName: user.firstName,
-      lastName: user.lastName,
+      username: user.username,
       email: user.email,
       password: user.password,
       photoUrl: user.photoUrl,
@@ -98,9 +95,9 @@ export const signIn = async (req, res) => {
 
 export const updateProfile = async (req, res) => {
   try {
-    const { profilePic, firstName, lastName } = req.body;
+    const { profilePic, username } = req.body;
 
-    if (!profilePic && !firstName && !lastName) {
+    if (!profilePic && !username) {
       return res.status(400).json({ error: "Fields can't be empty" });
     }
 
@@ -118,18 +115,14 @@ export const updateProfile = async (req, res) => {
       updateFields.photoUrl = uploadedImage.secure_url;
     }
 
-    if (firstName) {
-      updateFields.firstName = firstName;
-    }
-
-    if (lastName) {
-      updateFields.lastName = lastName;
+    if (username) {
+      updateFields.username = username;
     }
 
     const updatedUser = await User.findByIdAndUpdate(
       req.user._id,
       { $set: updateFields },
-      { new: true }
+      { new: true },
     );
 
     io.emit("updateUser", updatedUser);
@@ -182,7 +175,7 @@ export const forgotPassword = async (req, res) => {
 
     const source = fs.readFileSync(
       path.join(__dirname, "../../src", "emails", "reset.hbs"),
-      "utf-8"
+      "utf-8",
     );
     const template = handlebars.compile(source);
     const htmlToSend = template({ link });
