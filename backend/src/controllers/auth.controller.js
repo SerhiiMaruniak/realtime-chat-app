@@ -12,6 +12,23 @@ import sendMail from "../lib/email.js";
 import { getFileMeta } from "../lib/pathUtils.js";
 import EmailLog from "../models/emaillog.model.js";
 
+const generateUniqueUserId = async (rawUsername) => {
+  if (!rawUsername) return null;
+
+  const lower = rawUsername.toLowerCase();
+  const trimmed = lower.replace(/\s+$/, "");
+  const base = trimmed.replace(/\s+/g, "_");
+
+  for (let i = 0; i < 100; i++) {
+    const candidate = i === 0 ? base : `${base}${i}`;
+    const exists = await User.findOne({ user_id: candidate });
+    if (!exists) return candidate;
+  }
+
+  const fallback = Math.floor(1000 + Math.random() * 9000);
+  return `${base}${fallback}`;
+};
+
 export const signUp = async (req, res) => {
   try {
     const { username, email, password } = req.body;
@@ -32,10 +49,13 @@ export const signUp = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    const user_id = await generateUniqueUserId(username);
+
     const newUser = new User({
       username,
       email,
       password: hashedPassword,
+      user_id,
     });
 
     if (newUser) {
@@ -44,6 +64,7 @@ export const signUp = async (req, res) => {
 
       return res.status(201).json({
         _id: newUser._id,
+        user_id: newUser.user_id,
         username: newUser.username,
         email: newUser.email,
         password: newUser.password,
@@ -80,6 +101,7 @@ export const signIn = async (req, res) => {
     res.status(201).json({
       _id: user._id,
       username: user.username,
+      user_id: user.user_id,
       email: user.email,
       password: user.password,
       photoUrl: user.photoUrl,

@@ -35,8 +35,8 @@ export const sendFriendRequest = async (req, res) => {
     await newFriendRequest.save();
 
     const populatedRequest = await FriendRequest.findById(newFriendRequest._id)
-      .populate("senderId", "_id username email photoUrl")
-      .populate("receiverId", "_id username email photoUrl");
+      .populate("senderId", "_id username user_id email photoUrl")
+      .populate("receiverId", "_id username user_id email photoUrl");
 
     const receiverSocketId = getReceiverSocketIds(receiverId);
     if (receiverSocketId) {
@@ -58,8 +58,8 @@ export const sendFriendRequest = async (req, res) => {
 export const getFriendRequests = async (req, res) => {
   try {
     const requests = await FriendRequest.find()
-      .populate("senderId", "_id username email photoUrl")
-      .populate("receiverId", "_id username email photoUrl");
+      .populate("senderId", "_id username user_id email photoUrl")
+      .populate("receiverId", "_id username user_id email photoUrl");
 
     res.status(200).json(requests);
   } catch (error) {
@@ -107,10 +107,10 @@ export const manageFriendRequest = async (req, res) => {
         await friendRequest.deleteOne();
 
         const populatedSender = await User.findById(senderId).select(
-          "_id username email photoUrl",
+          "_id username user_id email photoUrl",
         );
         const populatedReceiver = await User.findById(receiverId).select(
-          "_id username email photoUrl",
+          "_id username user_id email photoUrl",
         );
 
         const receiverSocketId = getReceiverSocketIds(receiverId);
@@ -166,7 +166,7 @@ export const getFriends = async (req, res) => {
   try {
     const user = await User.findById(req.user._id).populate(
       "friendsList",
-      "_id username email photoUrl",
+      "_id username user_id email photoUrl",
     );
 
     res.status(200).json(user.friendsList);
@@ -223,9 +223,12 @@ export const getUsers = async (req, res) => {
 
   let users = null;
 
-  // if (id !== "") {
-  //   users = await User.findById(id)
-  // }
+  if (id !== "") {
+    users = await User.find({ user_id: id });
+  } else {
+    const usernameRegexp = new RegExp(name, "ig");
+    users = await User.find({ username: usernameRegexp });
+  }
 
-  // users = await User.find()
+  res.status(200).json(users);
 };

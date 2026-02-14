@@ -4,6 +4,7 @@ import crypto from "node:crypto";
 const userSchema = new mongoose.Schema(
   {
     username: { type: String, required: true },
+    user_id: { type: String, unique: true, index: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true, minLength: 6 },
     photoUrl: { type: String, default: "" },
