@@ -11,7 +11,9 @@ import AddFriends from "../components/Friends/AddFriends";
 
 const Home = () => {
   const [selectedPage, setSelectedPage] = useState<React.JSX.Element>(<Chat />);
-  const [homeContextValue, setHomeContextValue] = useState<HomeContextValue>("Chat");
+  // DEBUG: change to Chat component
+  const [homeContextValue, setHomeContextValue] =
+    useState<HomeContextValue>("Add_Friends");
   const { selectedImage, selectedChat } = useChatStore();
 
   useEffect(() => {

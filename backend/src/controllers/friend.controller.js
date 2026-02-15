@@ -215,20 +215,29 @@ export const deleteFriend = async (req, res) => {
 };
 
 export const getUsers = async (req, res) => {
-  const { id, name } = req.query;
+  try {
+    const { id, username } = req.query;
 
-  if (id === "" && name === "") {
-    return res.status(400).json({ error: "ID or name can't be empty" });
+    if (!id && !username) {
+      return res.status(400).json({ error: "ID or name can't be empty" });
+    }
+
+    let users = null;
+
+    if (id) {
+      users = await User.find({
+        $and: [{ user_id: id }, { user_id: { $ne: req.user.user_id } }],
+      });
+    } else {
+      const usernameRegexp = new RegExp(username, "ig");
+      users = await User.find({
+        $and: [{ username: usernameRegexp }, { _id: { $ne: req.user._id } }],
+      });
+    }
+
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(500).json({ error: "Internal Server Error" });
+    console.error(error);
   }
-
-  let users = null;
-
-  if (id !== "") {
-    users = await User.find({ user_id: id });
-  } else {
-    const usernameRegexp = new RegExp(name, "ig");
-    users = await User.find({ username: usernameRegexp });
-  }
-
-  res.status(200).json(users);
 };

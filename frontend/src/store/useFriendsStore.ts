@@ -7,12 +7,15 @@ import type requestSchema from "../lib/schemas/friendRequestSchema.ts";
 import { useAuthStore } from "./useAuthStore.ts";
 
 interface FriendsProps {
+  users: User[] | null;
   friends: User[] | null;
   friendRequests: requestSchema[] | [];
+  isGettingUsers: boolean;
   isGettingFriends: boolean;
   isSendingFriendRequest: boolean;
   isManagingRequest: string | null;
   isDeletingFriend: string | null;
+  getUsers: (payload: { username: string; user_id: string }) => Promise<void>;
   getFriends: () => Promise<void>;
   getRequests: () => Promise<void>;
   sendRequest: (id: string) => Promise<void>;
@@ -24,12 +27,37 @@ interface FriendsProps {
 }
 
 export const useFriendsStore = create<FriendsProps>((set, get) => ({
+  users: null,
   friends: null,
   friendRequests: [],
+  isGettingUsers: false,
   isGettingFriends: false,
   isSendingFriendRequest: false,
   isManagingRequest: null,
   isDeletingFriend: null,
+
+  getUsers: async (payload) => {
+    set({ isGettingUsers: true });
+
+    try {
+      const { user_id, username } = payload;
+
+      let searchParams = "";
+      if (user_id) {
+        searchParams = `?id=${user_id}`;
+      } else {
+        searchParams = `?username=${username}`;
+      }
+
+      const response = await AxiosInstance.get(`/friends/get-users${searchParams}`);
+      set({ users: response.data });
+    } catch (error: any) {
+      toast.error(error.response.data.error);
+      console.error(error);
+    } finally {
+      set({ isGettingUsers: false });
+    }
+  },
 
   getFriends: async () => {
     set({ isGettingFriends: true });
