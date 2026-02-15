@@ -17,7 +17,7 @@ interface FriendsProps {
   isDeletingFriend: string | null;
   getUsers: (payload: { username: string; user_id: string }) => Promise<void>;
   getFriends: () => Promise<void>;
-  getRequests: () => Promise<void>;
+  getRequests: (id: string | null) => Promise<void>;
   sendRequest: (id: string) => Promise<void>;
   manageRequest: (data: { id: string; action: string }) => Promise<void>;
   updateFriend: (data: User) => void;
@@ -73,9 +73,9 @@ export const useFriendsStore = create<FriendsProps>((set, get) => ({
     }
   },
 
-  getRequests: async () => {
+  getRequests: async (id) => {
     try {
-      const response = await AxiosInstance.get("/friends/requests");
+      const response = await AxiosInstance.get(`/friends/requests/${id}`);
       set({ friendRequests: response.data });
     } catch (error: any) {
       console.error(error);

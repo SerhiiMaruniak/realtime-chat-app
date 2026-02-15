@@ -1,16 +1,19 @@
-import { UserPlus } from "lucide-react";
+import { UserPlus, Hourglass } from "lucide-react";
 import type User from "../../../lib/schemas/userSchema";
 import { useFriendsStore } from "../../../store/useFriendsStore";
 import Loader from "../../Loader";
 
-interface FoundUsersProps {
+interface FoundUserProps {
   user: User;
+  requested: boolean;
 }
 
-const FoundUsers = ({ user }: FoundUsersProps) => {
+const FoundUser = ({ user, requested }: FoundUserProps) => {
   const { sendRequest, isSendingFriendRequest } = useFriendsStore();
 
   const sendFriendRequest = () => {
+    if (requested) return;
+
     sendRequest(user._id);
   };
 
@@ -33,10 +36,10 @@ const FoundUsers = ({ user }: FoundUsersProps) => {
         className="bg-spec-1-dark/45 hover:bg-spec-1-dark/20 p-1.5 rounded-md cursor-pointer text-label-text transition-colors duration-100 ease-in-out"
         onClick={sendFriendRequest}
       >
-        {isSendingFriendRequest ? <Loader /> : <UserPlus />}
+        {isSendingFriendRequest ? <Loader /> : requested ? <Hourglass /> : <UserPlus />}
       </button>
     </div>
   );
 };
 
-export default FoundUsers;
+export default FoundUser;

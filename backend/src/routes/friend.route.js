@@ -13,7 +13,7 @@ const router = express.Router();
 
 router.get("/get-users", protectedRoute, getUsers);
 router.get("/friends", protectedRoute, getFriends);
-router.get("/requests", protectedRoute, getFriendRequests);
+router.get("/requests/:id", protectedRoute, getFriendRequests);
 
 router.post("/send-request/:id", protectedRoute, sendFriendRequest);
 router.put("/manage-request/:id", protectedRoute, manageFriendRequest);

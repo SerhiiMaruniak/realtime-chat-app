@@ -1,14 +1,17 @@
 import { useState } from "react";
 import { useFriendsStore } from "../../store/useFriendsStore";
 import Loader from "../Loader";
-import FoundUsers from "./Cards/FoundUsers";
+import FoundUser from "./Cards/FoundUser";
 import { UserIdSchema } from "../../lib/schemas/schemas";
 import toast from "react-hot-toast";
 import HandleZodError from "../../lib/handleZodError";
+import { useAuthStore } from "../../store/useAuthStore";
 
 const AddFriends = () => {
   const [inputValue, setInputValue] = useState<string>("");
-  const { users, getUsers, isGettingUsers } = useFriendsStore();
+  const { user } = useAuthStore();
+  const { users, getUsers, isGettingUsers, friendRequests, getRequests } =
+    useFriendsStore();
 
   const findFriend = () => {
     if (inputValue === "") return;
@@ -27,6 +30,8 @@ const AddFriends = () => {
     } else {
       getUsers({ user_id: "", username: query });
     }
+
+    getRequests(user && user._id);
   };
 
   return (
@@ -55,9 +60,11 @@ const AddFriends = () => {
         </div>
       </div>
       <div className="flex flex-col flex-1 justify-start items-start w-full">
-        {users?.map((user) => (
-          <FoundUsers user={user} />
-        ))}
+        {users?.map((user) => {
+          const requestExists =
+            friendRequests.find((req) => req.receiverId === user._id) !== undefined;
+          return <FoundUser user={user} requested={requestExists} key={user._id} />;
+        })}
       </div>
     </div>
   );

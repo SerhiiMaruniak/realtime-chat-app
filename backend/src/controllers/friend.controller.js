@@ -57,9 +57,12 @@ export const sendFriendRequest = async (req, res) => {
 
 export const getFriendRequests = async (req, res) => {
   try {
-    const requests = await FriendRequest.find()
-      .populate("senderId", "_id username user_id email photoUrl")
-      .populate("receiverId", "_id username user_id email photoUrl");
+    const id = req.params.id;
+    if (!id) {
+      res.status(400).json({ error: "ID can't be empty" });
+    }
+
+    const requests = await FriendRequest.find({ senderId: id });
 
     res.status(200).json(requests);
   } catch (error) {
