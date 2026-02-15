@@ -2,6 +2,9 @@ import { useState } from "react";
 import { useFriendsStore } from "../../store/useFriendsStore";
 import Loader from "../Loader";
 import FoundUsers from "./Cards/FoundUsers";
+import { UserIdSchema } from "../../lib/schemas/schemas";
+import toast from "react-hot-toast";
+import HandleZodError from "../../lib/handleZodError";
 
 const AddFriends = () => {
   const [inputValue, setInputValue] = useState<string>("");
@@ -12,7 +15,15 @@ const AddFriends = () => {
 
     const query = inputValue.trim();
     if (query.startsWith("@")) {
-      getUsers({ user_id: query.slice(1), username: "" });
+      const rawId = query.slice(1);
+      const result = UserIdSchema.safeParse({ user_id: rawId });
+
+      if (result.success) {
+        getUsers({ user_id: result.data.user_id, username: "" });
+      } else {
+        const error = HandleZodError({ errors: result.error.issues, input: "user_id" });
+        toast.error(error);
+      }
     } else {
       getUsers({ user_id: "", username: query });
     }
