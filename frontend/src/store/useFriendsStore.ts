@@ -11,11 +11,17 @@ interface FriendsProps {
   friends: User[] | null;
   friendRequests: requestSchema[] | [];
   isGettingUsers: boolean;
+  totalPages: number;
+  currentPage: number;
   isGettingFriends: boolean;
-  isSendingFriendRequest: boolean;
+  isSendingFriendRequest: string | null;
   isManagingRequest: string | null;
   isDeletingFriend: string | null;
-  getUsers: (payload: { username: string; user_id: string }) => Promise<void>;
+  getUsers: (payload: {
+    username: string;
+    user_id: string;
+    page?: number;
+  }) => Promise<void>;
   getFriends: () => Promise<void>;
   getRequests: (id: string | null) => Promise<void>;
   sendRequest: (id: string) => Promise<void>;
@@ -32,25 +38,32 @@ export const useFriendsStore = create<FriendsProps>((set, get) => ({
   friendRequests: [],
   isGettingUsers: false,
   isGettingFriends: false,
-  isSendingFriendRequest: false,
+  isSendingFriendRequest: null,
   isManagingRequest: null,
   isDeletingFriend: null,
+  totalPages: 1,
+  currentPage: 1,
 
   getUsers: async (payload) => {
     set({ isGettingUsers: true });
 
     try {
-      const { user_id, username } = payload;
+      const { user_id, username, page } = payload;
 
       let searchParams = "";
       if (user_id) {
-        searchParams = `?id=${user_id}`;
+        searchParams = `?id=${user_id}&page=${page || 1}`;
       } else {
-        searchParams = `?username=${username}`;
+        searchParams = `?username=${username}&page=${page || 1}`;
       }
 
       const response = await AxiosInstance.get(`/friends/get-users${searchParams}`);
-      set({ users: response.data });
+      // response.data: { users, totalPages, page, total }
+      set({
+        users: response.data.users,
+        totalPages: response.data.totalPages || 1,
+        currentPage: response.data.page || 1,
+      });
     } catch (error: any) {
       toast.error(error.response.data.error);
       console.error(error);
@@ -83,7 +96,7 @@ export const useFriendsStore = create<FriendsProps>((set, get) => ({
   },
 
   sendRequest: async (id) => {
-    set({ isSendingFriendRequest: true });
+    set({ isSendingFriendRequest: id });
 
     try {
       await AxiosInstance.post(`/friends/send-request/${id}`);
@@ -92,7 +105,7 @@ export const useFriendsStore = create<FriendsProps>((set, get) => ({
       toast.error(error.response.data.error);
       console.error(error);
     } finally {
-      set({ isSendingFriendRequest: false });
+      set({ isSendingFriendRequest: null });
     }
   },
 

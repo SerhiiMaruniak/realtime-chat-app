@@ -36,7 +36,13 @@ const FoundUser = ({ user, requested }: FoundUserProps) => {
         className="bg-spec-1-dark/45 hover:bg-spec-1-dark/20 p-1.5 rounded-md cursor-pointer text-label-text transition-colors duration-100 ease-in-out"
         onClick={sendFriendRequest}
       >
-        {isSendingFriendRequest ? <Loader /> : requested ? <Hourglass /> : <UserPlus />}
+        {isSendingFriendRequest === user._id ? (
+          <Loader />
+        ) : requested ? (
+          <Hourglass />
+        ) : (
+          <UserPlus />
+        )}
       </button>
     </div>
   );

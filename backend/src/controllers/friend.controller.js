@@ -219,26 +219,30 @@ export const deleteFriend = async (req, res) => {
 
 export const getUsers = async (req, res) => {
   try {
-    const { id, username } = req.query;
+    const { id, username, page = "1", limit = "5" } = req.query;
 
     if (!id && !username) {
       return res.status(400).json({ error: "ID or name can't be empty" });
     }
 
-    let users = null;
+    const pageNum = Math.max(1, parseInt(page, 10) || 1);
+    const limitNum = Math.max(1, parseInt(limit, 10) || 5);
+    const skip = (pageNum - 1) * limitNum;
 
+    let query = null;
     if (id) {
-      users = await User.find({
-        $and: [{ user_id: id }, { user_id: { $ne: req.user.user_id } }],
-      });
+      query = { $and: [{ user_id: id }, { user_id: { $ne: req.user.user_id } }] };
     } else {
       const usernameRegexp = new RegExp(username, "ig");
-      users = await User.find({
-        $and: [{ username: usernameRegexp }, { _id: { $ne: req.user._id } }],
-      });
+      query = { $and: [{ username: usernameRegexp }, { _id: { $ne: req.user._id } }] };
     }
 
-    res.status(200).json(users);
+    const total = await User.countDocuments(query);
+    const users = await User.find(query).skip(skip).limit(limitNum);
+
+    const totalPages = Math.max(1, Math.ceil(total / limitNum));
+
+    res.status(200).json({ users, totalPages, page: pageNum, total });
   } catch (error) {
     res.status(500).json({ error: "Internal Server Error" });
     console.error(error);
