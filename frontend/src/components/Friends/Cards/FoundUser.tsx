@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { UserPlus, Hourglass } from "lucide-react";
 import type User from "../../../lib/schemas/userSchema";
 import { useFriendsStore } from "../../../store/useFriendsStore";
@@ -8,7 +9,7 @@ interface FoundUserProps {
   requested: boolean;
 }
 
-const FoundUser = ({ user, requested }: FoundUserProps) => {
+const FoundUser = memo(({ user, requested }: FoundUserProps) => {
   const { sendRequest, isSendingFriendRequest } = useFriendsStore();
 
   const sendFriendRequest = () => {
@@ -33,8 +34,16 @@ const FoundUser = ({ user, requested }: FoundUserProps) => {
         </div>
       </div>
       <button
-        className="bg-spec-1-dark/45 hover:bg-spec-1-dark/20 p-1.5 rounded-md cursor-pointer text-label-text transition-colors duration-100 ease-in-out"
+        className="bg-spec-1-dark/45 hover:bg-spec-1-dark/20 p-1.5 rounded-md cursor-pointer text-label-text transition-colors duration-100 ease-in-out disabled:cursor-not-allowed"
         onClick={sendFriendRequest}
+        disabled={requested || isSendingFriendRequest === user._id}
+        aria-label={
+          requested
+            ? "Request already sent"
+            : isSendingFriendRequest === user._id
+              ? "Sending request"
+              : "Send friend request"
+        }
       >
         {isSendingFriendRequest === user._id ? (
           <Loader />
@@ -46,6 +55,8 @@ const FoundUser = ({ user, requested }: FoundUserProps) => {
       </button>
     </div>
   );
-};
+});
+
+FoundUser.displayName = "FoundUser";
 
 export default FoundUser;

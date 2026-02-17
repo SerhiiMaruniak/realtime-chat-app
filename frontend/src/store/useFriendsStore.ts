@@ -32,7 +32,7 @@ interface FriendsProps {
   unsubscribeFriends: () => void;
 }
 
-export const useFriendsStore = create<FriendsProps>((set, get) => ({
+export const useFriendsStore = create<FriendsProps>((set) => ({
   users: null,
   friends: null,
   friendRequests: [],
@@ -99,7 +99,10 @@ export const useFriendsStore = create<FriendsProps>((set, get) => ({
     set({ isSendingFriendRequest: id });
 
     try {
-      await AxiosInstance.post(`/friends/send-request/${id}`);
+      const response = await AxiosInstance.post(`/friends/send-request/${id}`);
+      set((state) => ({
+        friendRequests: [...(state.friendRequests || []), response.data],
+      }));
       toast.success("Sent friend request successfully");
     } catch (error: any) {
       toast.error(error.response.data.error);
@@ -146,7 +149,14 @@ export const useFriendsStore = create<FriendsProps>((set, get) => ({
     const socket = useAuthStore.getState().socket;
 
     socket?.on("addFriend", (newRequest) => {
-      set({ friendRequests: [...(get().friendRequests || []), newRequest] });
+      set((state) => {
+        const exists = state.friendRequests.some((req) => req._id === newRequest._id);
+        return {
+          friendRequests: exists
+            ? state.friendRequests
+            : [...(state.friendRequests || []), newRequest],
+        };
+      });
     });
 
     socket?.on("acceptRequest", (newFriend, friendRequest) => {
