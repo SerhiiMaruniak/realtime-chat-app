@@ -57,7 +57,7 @@ const AddFriends = () => {
   };
 
   return (
-    <div className="w-full h-full flex flex-col justify-between items-start gap-14 p-[52px]">
+    <div className="w-full h-full flex flex-col justify-between items-start gap-4 p-8 overflow-auto">
       <div className="w-full h-auto flex flex-col justify-start items-start gap-[22px]">
         <div className="w-full flex flex-col justify-start items-start gap-2.5">
           <h1 className="text-3xl text-label-brighter-text font-semibold">Add Friend</h1>
@@ -81,7 +81,7 @@ const AddFriends = () => {
           </button>
         </div>
       </div>
-      <div className="flex flex-col flex-1 justify-start items-start w-full overflow-auto">
+      <div className="flex flex-col flex-1 justify-start items-center gap-4 w-full h-full overflow-auto">
         {isGettingUsers ? (
           <Loader className="mx-auto my-auto text-spec-1-dark" size={48} />
         ) : users && users.length > 0 ? (
@@ -96,7 +96,7 @@ const AddFriends = () => {
       </div>
 
       {totalPages > 1 && (
-        <div className="w-full flex items-center justify-center gap-2 mt-4">
+        <div className="w-full flex items-center justify-center gap-2">
           <button
             onClick={() => goToPage(currentPage - 1)}
             disabled={currentPage === 1}

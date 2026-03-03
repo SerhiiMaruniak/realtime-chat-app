@@ -94,13 +94,9 @@ const Sidebar = () => {
   return (
     <div
       ref={sidebarRef}
-      className={`
-        relative flex flex-col justify-start items-start border-r border-spec-1-dark bg-secondary_dark
-        px-2.5 py-6
-        ${currentWidth <= MIN_WIDTH ? "w-20" : "w-80"}
-        sm:w-[${currentWidth}px]
-        h-full
-      `}
+      className={`relative sm:flex hidden flex-col justify-start items-start border-r border-spec-1-dark bg-secondary_dark px-2.5 py-6 h-full
+      ${currentWidth <= MIN_WIDTH ? "w-20" : "w-80"}
+      sm:w-[${currentWidth}px]`}
       style={{ width: currentWidth }}
     >
       <div
