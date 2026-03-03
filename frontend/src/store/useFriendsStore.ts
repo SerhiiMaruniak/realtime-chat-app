@@ -14,6 +14,7 @@ interface FriendsProps {
   totalPages: number;
   currentPage: number;
   isGettingFriends: boolean;
+  isGettingFriendRequests: boolean;
   isSendingFriendRequest: string | null;
   isManagingRequest: string | null;
   isDeletingFriend: string | null;
@@ -23,7 +24,7 @@ interface FriendsProps {
     page?: number;
   }) => Promise<void>;
   getFriends: () => Promise<void>;
-  getRequests: (id: string | null) => Promise<void>;
+  getRequests: (type: "sent" | "received") => Promise<void>;
   sendRequest: (id: string) => Promise<void>;
   manageRequest: (data: { id: string; action: string }) => Promise<void>;
   updateFriend: (data: User) => void;
@@ -38,6 +39,7 @@ export const useFriendsStore = create<FriendsProps>((set) => ({
   friendRequests: [],
   isGettingUsers: false,
   isGettingFriends: false,
+  isGettingFriendRequests: false,
   isSendingFriendRequest: null,
   isManagingRequest: null,
   isDeletingFriend: null,
@@ -58,7 +60,7 @@ export const useFriendsStore = create<FriendsProps>((set) => ({
       }
 
       const response = await AxiosInstance.get(`/friends/get-users${searchParams}`);
-      // response.data: { users, totalPages, page, total }
+
       set({
         users: response.data.users,
         totalPages: response.data.totalPages || 1,
@@ -86,12 +88,18 @@ export const useFriendsStore = create<FriendsProps>((set) => ({
     }
   },
 
-  getRequests: async (id) => {
+  getRequests: async (type) => {
+    set({ isGettingFriendRequests: true });
+
     try {
-      const response = await AxiosInstance.get(`/friends/requests/${id}`);
+      const response = await AxiosInstance.get(`/friends/requests`, {
+        params: { type },
+      });
       set({ friendRequests: response.data });
     } catch (error: any) {
       console.error(error);
+    } finally {
+      set({ isGettingFriendRequests: false });
     }
   },
 
@@ -117,6 +125,12 @@ export const useFriendsStore = create<FriendsProps>((set) => ({
 
     try {
       await AxiosInstance.put(`/friends/manage-request/${data.id}`, data);
+      // Optimistically remove the request from state; socket will handle friend list
+      set((state) => ({
+        friendRequests: [
+          ...(state.friendRequests.filter((req) => req._id !== data.id) || []),
+        ],
+      }));
     } catch (error: any) {
       toast.error(error.response.data.error);
       console.error(error);
@@ -147,8 +161,10 @@ export const useFriendsStore = create<FriendsProps>((set) => ({
 
   subscribeFriends: () => {
     const socket = useAuthStore.getState().socket;
+    console.log(socket);
 
     socket?.on("addFriend", (newRequest) => {
+      console.debug("socket addFriend event", newRequest);
       set((state) => {
         const exists = state.friendRequests.some((req) => req._id === newRequest._id);
         return {
@@ -160,6 +176,7 @@ export const useFriendsStore = create<FriendsProps>((set) => ({
     });
 
     socket?.on("acceptRequest", (newFriend, friendRequest) => {
+      console.debug("socket acceptRequest event", newFriend, friendRequest);
       set((state) => ({
         friends: [...(state.friends || []), newFriend],
         friendRequests: [
@@ -171,6 +188,7 @@ export const useFriendsStore = create<FriendsProps>((set) => ({
     });
 
     socket?.on("declineRequest", (friendRequest) => {
+      console.debug("socket declineRequest event", friendRequest);
       set((state) => ({
         friendRequests: [
           ...(state.friendRequests.filter(

@@ -5,11 +5,9 @@ import FoundUser from "./Cards/FoundUser";
 import { UserIdSchema } from "../../lib/schemas/schemas";
 import toast from "react-hot-toast";
 import HandleZodError from "../../lib/handleZodError";
-import { useAuthStore } from "../../store/useAuthStore";
 
 const AddFriends = () => {
   const [inputValue, setInputValue] = useState<string>("");
-  const { user } = useAuthStore();
   const {
     users,
     getUsers,
@@ -47,7 +45,7 @@ const AddFriends = () => {
       getUsers({ ...payload, page: 1 });
     }
 
-    getRequests(user && user._id);
+    getRequests("sent");
   };
 
   const goToPage = (page: number) => {

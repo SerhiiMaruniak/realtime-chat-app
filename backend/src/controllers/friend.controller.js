@@ -57,12 +57,24 @@ export const sendFriendRequest = async (req, res) => {
 
 export const getFriendRequests = async (req, res) => {
   try {
-    const id = req.params.id;
-    if (!id) {
-      res.status(400).json({ error: "ID can't be empty" });
+    let type = req.query.type;
+    type = typeof type === "string" ? type.trim().toLowerCase() : undefined;
+
+    if (!type || (type !== "received" && type !== "sent")) {
+      return res.status(400).json({ error: "Make sure that the type is right" });
     }
 
-    const requests = await FriendRequest.find({ senderId: id });
+    let requests = null;
+
+    if (type === "received") {
+      const request = await FriendRequest.find({ receiverId: req.user._id }).populate(
+        "senderId",
+        "_id username user_id photoUrl",
+      );
+      requests = request;
+    } else {
+      requests = await FriendRequest.find({ senderId: req.user._id });
+    }
 
     res.status(200).json(requests);
   } catch (error) {
