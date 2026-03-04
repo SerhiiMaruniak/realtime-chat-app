@@ -33,7 +33,6 @@ const ForgotPasword = () => {
 
     if (validated.error) {
       setFormError(validated.error.issues);
-      console.log(validated.error.issues);
       return;
     }
 

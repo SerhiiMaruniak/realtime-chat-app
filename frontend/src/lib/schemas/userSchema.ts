@@ -5,7 +5,7 @@ export default interface User {
   email: string;
   password?: string;
   photoUrl?: string;
-  friendsList?: User[];
+  friendsList?: string;
   createdAt?: string;
   updatedAt?: string;
 }

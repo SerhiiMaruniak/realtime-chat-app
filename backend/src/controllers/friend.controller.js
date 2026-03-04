@@ -72,8 +72,11 @@ export const getFriendRequests = async (req, res) => {
         "_id username user_id photoUrl",
       );
       requests = request;
-    } else {
-      requests = await FriendRequest.find({ senderId: req.user._id });
+    } else if ("sent") {
+      requests = await FriendRequest.find({ senderId: req.user._id }).populate(
+        "receiverId",
+        "_id username user_id photoUrl",
+      );
     }
 
     res.status(200).json(requests);
@@ -241,12 +244,18 @@ export const getUsers = async (req, res) => {
     const limitNum = Math.max(1, parseInt(limit, 10) || 5);
     const skip = (pageNum - 1) * limitNum;
 
+    const excludeIds = [req.user._id, ...(req.user.friendsList || [])];
+
     let query = null;
     if (id) {
-      query = { $and: [{ user_id: id }, { user_id: { $ne: req.user.user_id } }] };
+      query = {
+        $and: [{ user_id: id }, { _id: { $nin: excludeIds } }],
+      };
     } else {
       const usernameRegexp = new RegExp(username, "ig");
-      query = { $and: [{ username: usernameRegexp }, { _id: { $ne: req.user._id } }] };
+      query = {
+        $and: [{ username: usernameRegexp }, { _id: { $nin: excludeIds } }],
+      };
     }
 
     const total = await User.countDocuments(query);

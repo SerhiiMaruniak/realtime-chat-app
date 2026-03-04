@@ -8,15 +8,8 @@ import HandleZodError from "../../lib/handleZodError";
 
 const AddFriends = () => {
   const [inputValue, setInputValue] = useState<string>("");
-  const {
-    users,
-    getUsers,
-    isGettingUsers,
-    friendRequests,
-    getRequests,
-    totalPages,
-    currentPage,
-  } = useFriendsStore();
+  const { users, getUsers, isGettingUsers, getRequests, totalPages, currentPage } =
+    useFriendsStore();
 
   const [lastPayload, setLastPayload] = useState<{
     user_id: string;
@@ -84,9 +77,7 @@ const AddFriends = () => {
           <Loader className="mx-auto my-auto text-spec-1-dark" size={48} />
         ) : users && users.length > 0 ? (
           users.map((user) => {
-            const requestExists =
-              friendRequests.find((req) => req.receiverId === user._id) !== undefined;
-            return <FoundUser user={user} requested={requestExists} key={user._id} />;
+            return <FoundUser user={user} key={user._id} />;
           })
         ) : (
           <p className="text-label-text">No users found</p>

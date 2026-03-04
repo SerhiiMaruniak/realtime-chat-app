@@ -1,16 +1,29 @@
-import { memo } from "react";
+import { memo, useEffect, useState } from "react";
 import { UserPlus, Hourglass } from "lucide-react";
 import type User from "../../../lib/schemas/userSchema";
 import { useFriendsStore } from "../../../store/useFriendsStore";
 import Loader from "../../Loader";
+import { useAuthStore } from "../../../store/useAuthStore";
 
 interface FoundUserProps {
   user: User;
-  requested: boolean;
 }
 
-const FoundUser = memo(({ user, requested }: FoundUserProps) => {
-  const { sendRequest, isSendingFriendRequest } = useFriendsStore();
+const FoundUser = memo(({ user }: FoundUserProps) => {
+  const [requested, setRequested] = useState<boolean>(false);
+  const [isFriend, setIsFriend] = useState<boolean>(false);
+
+  const { user: currentUser } = useAuthStore();
+  const { friends, sendRequest, friendRequests, isSendingFriendRequest } =
+    useFriendsStore();
+
+  useEffect(() => {
+    setRequested(
+      friendRequests.find((req) => req.receiverId._id === user._id) !== undefined,
+    );
+
+    setIsFriend(friends?.find((friend) => friend._id === user._id) !== undefined);
+  }, [friendRequests, user._id, requested, currentUser, friends]);
 
   const sendFriendRequest = () => {
     if (requested) return;
@@ -34,26 +47,28 @@ const FoundUser = memo(({ user, requested }: FoundUserProps) => {
         </div>
       </div>
       <div className="flex justify-end items-center flex-2">
-        <button
-          className="bg-spec-1-dark/45 hover:bg-spec-1-dark/20 p-1.5 rounded-md cursor-pointer text-label-text transition-colors duration-100 ease-in-out disabled:cursor-not-allowed"
-          onClick={sendFriendRequest}
-          disabled={requested || isSendingFriendRequest === user._id}
-          aria-label={
-            requested
-              ? "Request already sent"
-              : isSendingFriendRequest === user._id
-                ? "Sending request"
-                : "Send friend request"
-          }
-        >
-          {isSendingFriendRequest === user._id ? (
-            <Loader />
-          ) : requested ? (
-            <Hourglass />
-          ) : (
-            <UserPlus />
-          )}
-        </button>
+        {!isFriend && (
+          <button
+            className="bg-spec-1-dark/45 hover:bg-spec-1-dark/20 p-1.5 rounded-md cursor-pointer text-label-text transition-colors duration-100 ease-in-out disabled:cursor-not-allowed"
+            onClick={sendFriendRequest}
+            disabled={requested || isSendingFriendRequest === user._id}
+            aria-label={
+              requested
+                ? "Request already sent"
+                : isSendingFriendRequest === user._id
+                  ? "Sending request"
+                  : "Send friend request"
+            }
+          >
+            {isSendingFriendRequest === user._id ? (
+              <Loader />
+            ) : requested ? (
+              <Hourglass />
+            ) : (
+              <UserPlus />
+            )}
+          </button>
+        )}
       </div>
     </div>
   );

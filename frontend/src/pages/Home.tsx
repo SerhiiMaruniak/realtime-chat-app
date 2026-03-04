@@ -12,12 +12,9 @@ import { useFriendsStore } from "../store/useFriendsStore";
 
 const Home = () => {
   const [selectedPage, setSelectedPage] = useState<React.JSX.Element>(<Chat />);
-  // DEBUG: change to Chat component
-  const [homeContextValue, setHomeContextValue] =
-    useState<HomeContextValue>("Add_Friends");
+  const [homeContextValue, setHomeContextValue] = useState<HomeContextValue>("Chat");
   const { selectedImage, selectedChat } = useChatStore();
 
-  // ensure real-time friend events are always handled regardless of current page
   const { subscribeFriends, unsubscribeFriends } = useFriendsStore();
 
   useEffect(() => {
@@ -37,9 +34,9 @@ const Home = () => {
     }
   }, [homeContextValue]);
 
-  // subscribe to socket events once when home loads
   useEffect(() => {
     subscribeFriends();
+
     return () => unsubscribeFriends();
   }, [subscribeFriends, unsubscribeFriends]);
 
