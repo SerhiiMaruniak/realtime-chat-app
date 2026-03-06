@@ -22,7 +22,7 @@ const Request = ({ request }: { request: requestSchema }) => {
           src={
             sender && sender.photoUrl !== "" ? sender.photoUrl : "avatar_placeholder.png"
           }
-          alt="Found user's avatar"
+          alt="Requested user's avatar"
         />
         <div className="flex flex-col justify-start items-start">
           <h1 className="text-label-brighter-text text-lg font-semibold">

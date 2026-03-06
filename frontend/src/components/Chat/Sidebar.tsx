@@ -22,7 +22,6 @@ const Sidebar = () => {
   const [isResizing, setIsResizing] = useState(false);
 
   const sidebarRef = useRef<HTMLDivElement>(null);
-  // TODO: fix sidebar jumping on render
   const [currentWidth, setCurrentWidth] = useState<number>(getInitialSidebarWidth());
   const [startX, setStartX] = useState<number>(0);
   const [startWidth, setStartWidth] = useState<number>(MAX_WIDTH);

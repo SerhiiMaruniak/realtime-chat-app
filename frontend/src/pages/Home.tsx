@@ -13,8 +13,8 @@ import { useFriendsStore } from "../store/useFriendsStore";
 const Home = () => {
   const [selectedPage, setSelectedPage] = useState<React.JSX.Element>(<Chat />);
   const [homeContextValue, setHomeContextValue] = useState<HomeContextValue>("Chat");
-  const { selectedImage, selectedChat } = useChatStore();
 
+  const { selectedImage, selectedChat, subscribeMessages } = useChatStore();
   const { subscribeFriends, unsubscribeFriends } = useFriendsStore();
 
   useEffect(() => {
@@ -36,9 +36,10 @@ const Home = () => {
 
   useEffect(() => {
     subscribeFriends();
+    subscribeMessages();
 
     return () => unsubscribeFriends();
-  }, [subscribeFriends, unsubscribeFriends]);
+  }, [subscribeFriends, unsubscribeFriends, subscribeMessages]);
 
   useEffect(() => {
     if (selectedChat) setHomeContextValue("Chat");
