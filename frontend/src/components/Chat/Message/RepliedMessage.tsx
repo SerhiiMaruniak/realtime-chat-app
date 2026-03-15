@@ -16,7 +16,7 @@ interface ReplyProps {
 
 const RepliedMessage = ({ message }: ReplyProps) => {
   const [senderData, setSenderData] = useState<{
-    firstName: string;
+    username: string;
     photoUrl: string;
   } | null>(null);
   const messageRefsContext = useContext(MessageRefsContext);
@@ -28,7 +28,7 @@ const RepliedMessage = ({ message }: ReplyProps) => {
     const sender = selectedChat?._id === message.senderId ? selectedChat : user;
 
     setSenderData({
-      firstName: sender?.firstName || "",
+      username: sender?.username || "",
       photoUrl: sender?.photoUrl ? sender.photoUrl : "",
     });
   }, [message, selectedChat, user]);
@@ -45,7 +45,7 @@ const RepliedMessage = ({ message }: ReplyProps) => {
           src={senderData?.photoUrl ? senderData.photoUrl : "avatar_placeholder.png"}
           alt="user_avatar"
         />
-        <p className="text-sm text-label-text">{senderData?.firstName}</p>
+        <p className="text-sm text-label-text">{senderData?.username}</p>
       </div>
 
       <div className="flex justify-start items-center overflow-hidden">

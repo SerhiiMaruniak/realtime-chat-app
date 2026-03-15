@@ -22,7 +22,6 @@ const Sidebar = () => {
   const [isResizing, setIsResizing] = useState(false);
 
   const sidebarRef = useRef<HTMLDivElement>(null);
-  // TODO: fix sidebar jumping on render
   const [currentWidth, setCurrentWidth] = useState<number>(getInitialSidebarWidth());
   const [startX, setStartX] = useState<number>(0);
   const [startWidth, setStartWidth] = useState<number>(MAX_WIDTH);
@@ -48,7 +47,7 @@ const Sidebar = () => {
 
       setCurrentWidth(newWidth);
     },
-    [isResizing, startX, startWidth]
+    [isResizing, startX, startWidth],
   );
 
   useEffect(() => {
@@ -94,13 +93,9 @@ const Sidebar = () => {
   return (
     <div
       ref={sidebarRef}
-      className={`
-        relative flex flex-col justify-start items-start border-r border-spec-1-dark bg-secondary_dark
-        px-2.5 py-6
-        ${currentWidth <= MIN_WIDTH ? "w-20" : "w-80"}
-        sm:w-[${currentWidth}px]
-        h-full
-      `}
+      className={`relative sm:flex hidden flex-col justify-start items-start border-r border-spec-1-dark bg-secondary_dark px-2.5 py-6 h-full
+      ${currentWidth <= MIN_WIDTH ? "w-20" : "w-80"}
+      sm:w-[${currentWidth}px]`}
       style={{ width: currentWidth }}
     >
       <div
@@ -141,14 +136,15 @@ const Sidebar = () => {
         ) : friends ? (
           friends
             .filter((friend) => {
-              const fullName = `${friend.firstName} ${friend.lastName}`.toLowerCase();
-              return fullName.includes(filteredFriends.toLowerCase());
+              return friend.username
+                .toLowerCase()
+                .includes(filteredFriends.toLowerCase());
             })
             .map((friend) => {
               let filteredUnreadMessages = null;
               if (messages && messages.length !== 0) {
                 filteredUnreadMessages = messages?.filter(
-                  (message) => message.senderId === friend._id && !message.is_seen
+                  (message) => message.senderId === friend._id && !message.is_seen,
                 );
               }
 

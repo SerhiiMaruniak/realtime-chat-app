@@ -1,11 +1,11 @@
 export default interface User {
   _id: string;
-  firstName: string;
-  lastName: string;
+  username: string;
+  user_id: string;
   email: string;
   password?: string;
   photoUrl?: string;
-  friendsList?: User[];
+  friendsList?: string;
   createdAt?: string;
   updatedAt?: string;
 }

@@ -12,6 +12,8 @@ interface ChatProps {
   selectedImage: string | null;
   messages: messageSchema[] | null;
   unreadMessages: messageSchema[] | null;
+  hasMore: boolean;
+  lastId: string | null;
   contextMenu: {
     message: string;
     offsetX: number;
@@ -20,8 +22,8 @@ interface ChatProps {
   isGettingUsers: boolean;
   isSendingMessage: boolean;
   isGettingMessages: boolean;
-  getUsers: () => Promise<void>;
   selectChat: (data: User) => void;
+  resetPagination: () => void;
   closeChat: () => void;
   selectImage: (data: string) => void;
   closeImage: () => void;
@@ -32,7 +34,7 @@ interface ChatProps {
     replyId: string | null;
   }) => Promise<void>;
   editMessage: (data: { id: string; content: string }) => Promise<void>;
-  getMessages: (data: string | null) => Promise<void>;
+  getMessages: (id: string | null, loadMore?: boolean) => Promise<void>;
   deleteMessage: (id: string) => Promise<void>;
   setMessageSeen: (messageId: string) => Promise<void>;
   showContextMenu: (
@@ -47,6 +49,8 @@ export const useChatStore = create<ChatProps>((set, get) => ({
   selectedChat: null,
   selectedImage: null,
   messages: null,
+  hasMore: true,
+  lastId: null,
   unreadMessages: (() => {
     try {
       const raw = localStorage.getItem("unreadMessages");
@@ -60,84 +64,84 @@ export const useChatStore = create<ChatProps>((set, get) => ({
   isGettingMessages: false,
   isSendingMessage: false,
 
-  getUsers: async () => {
-    set({ isGettingMessages: true });
+  selectChat: (data) => {
+    const { selectedChat } = get();
 
-    try {
-      const response = await AxiosInstance.get("/messages/users");
-      set({ users: response.data });
-    } catch (error: any) {
-      toast.error(error.response.data.error);
-      console.error("Error fetching users");
-    } finally {
-      set({ isGettingMessages: false });
-    }
-  },
+    if (selectedChat?._id === data._id) return;
 
-  selectChat: async (data) => {
-    set({ selectedChat: data });
-
-    const currentUser = useAuthStore.getState().user;
-    const newUnread = (get().unreadMessages || []).filter(
-      (m) => !(m.senderId === data._id && m.receiverId === currentUser?._id),
+    const updatedUnread = (get().unreadMessages || []).filter(
+      (m) => m.senderId !== data._id,
     );
-    set({ unreadMessages: newUnread });
 
-    try {
-      localStorage.setItem("unreadMessages", JSON.stringify(newUnread));
-    } catch (error: any) {
-      toast.error(error.response.data.error);
-      console.error(error);
-    }
+    localStorage.setItem("unreadMessages", JSON.stringify(updatedUnread));
+
+    set({
+      selectedChat: data,
+      messages: null,
+      unreadMessages: updatedUnread,
+    });
+
+    get().resetPagination();
   },
 
-  closeChat: () => {
-    set({ selectedChat: null });
-  },
+  resetPagination: () => set({ hasMore: true, lastId: null }),
 
-  selectImage: (data) => {
-    set({ selectedImage: data });
-  },
+  closeChat: () => set({ selectedChat: null }),
 
-  closeImage: () => {
-    set({ selectedImage: null });
-  },
+  selectImage: (data) => set({ selectedImage: data }),
 
-  sendMessage: async (data: any) => {
+  closeImage: () => set({ selectedImage: null }),
+
+  sendMessage: async (data) => {
     set({ isSendingMessage: true });
-
     try {
       await AxiosInstance.post("/messages/send-message", data);
     } catch (error: any) {
-      toast.error(error.response.data.error);
-      console.error(error);
+      toast.error(error.response?.data?.error);
     } finally {
       set({ isSendingMessage: false });
     }
   },
 
   editMessage: async (data) => {
-    set({ isSendingMessage: true });
-
     try {
       await AxiosInstance.put(`/messages/edit-message/${data.id}`, data);
     } catch (error: any) {
-      toast.error(error.response.data.error);
-      console.error(error);
-    } finally {
-      set({ isSendingMessage: false });
+      toast.error(error.response?.data?.error);
     }
   },
 
-  getMessages: async (id) => {
+  getMessages: async (id, loadMore = false) => {
+    if (!id) return;
+
+    const { lastId } = get();
+
+    if (loadMore && !lastId && (get().messages?.length ?? 0) > 0) return;
+
     set({ isGettingMessages: true });
 
     try {
-      const response = await AxiosInstance.get(`/messages/get-messages/${id}`);
-      set({ messages: response.data });
+      const response = await AxiosInstance.get(
+        `/messages/get-messages/${id}`,
+        loadMore ? { params: { lastId } } : undefined,
+      );
+
+      if (loadMore) {
+        set({
+          messages: [...(response.data.messages ?? []), ...(get().messages ?? [])],
+        });
+      } else {
+        set({
+          messages: response.data.messages,
+        });
+      }
+
+      set({
+        hasMore: response.data.hasMore,
+        lastId: response.data.lastId,
+      });
     } catch (error: any) {
-      toast.error(error.response.data.error);
-      console.error(error);
+      toast.error(error.response?.data?.error);
     } finally {
       set({ isGettingMessages: false });
     }
@@ -147,34 +151,25 @@ export const useChatStore = create<ChatProps>((set, get) => ({
     try {
       await AxiosInstance.delete(`/messages/delete-message/${id}`);
     } catch (error: any) {
-      toast.error(error.response.data.error);
-      console.error(error);
+      toast.error(error.response?.data?.error);
     }
   },
 
-  setMessageSeen: async (messageId: string) => {
+  setMessageSeen: async (messageId) => {
     try {
       await AxiosInstance.put(`/messages/set-seen/${messageId}`);
-      const updatedMessages = (get().messages || []).map((msg) =>
+
+      const updated = (get().messages || []).map((msg) =>
         msg._id === messageId ? { ...msg, is_seen: true } : msg,
       );
-      const newUnread = (get().unreadMessages || []).filter((m) => m._id !== messageId);
-      set({ messages: updatedMessages, unreadMessages: newUnread });
-      try {
-        localStorage.setItem("unreadMessages", JSON.stringify(newUnread));
-      } catch (error: any) {
-        toast.error(error.response.data.error);
-        console.error(error);
-      }
+
+      set({ messages: updated });
     } catch (error: any) {
-      toast.error(error.response.data.error);
-      console.error(error);
+      toast.error(error.response?.data?.error);
     }
   },
 
-  showContextMenu: (data) => {
-    set({ contextMenu: data });
-  },
+  showContextMenu: (data) => set({ contextMenu: data }),
 
   subscribeMessages: () => {
     const socket = useAuthStore.getState().socket;
@@ -186,66 +181,53 @@ export const useChatStore = create<ChatProps>((set, get) => ({
     socket.off("messageSeen");
 
     socket.on("newMessage", (message) => {
-      const currentUser = useAuthStore.getState().user;
-      const selectedChat = get().selectedChat;
+      const { selectedChat, messages, unreadMessages } = get();
+      const currentUserId = useAuthStore.getState().user?._id;
 
-      if (
+      const isForMe = message.receiverId === currentUserId;
+
+      const isCurrentChat =
         selectedChat &&
-        (message.senderId === selectedChat._id || message.receiverId === selectedChat._id)
-      ) {
-        set({ messages: [...(get().messages || []), message] });
+        (message.senderId === selectedChat._id ||
+          message.receiverId === selectedChat._id);
 
-        if (message.receiverId === currentUser?._id && !message.is_seen) {
-          get().setMessageSeen(message._id);
-        }
-      } else {
-        if (message.receiverId === currentUser?._id && !message.is_seen) {
-          const existing = get().unreadMessages || [];
-          if (!existing.find((m) => m._id === message._id)) {
-            const updated = [...existing, message];
-            set({ unreadMessages: updated });
-            try {
-              localStorage.setItem("unreadMessages", JSON.stringify(updated));
-            } catch (error: any) {
-              toast.error(error.response.data.error);
-              console.error(error);
-            }
-          }
-        }
+      if (isCurrentChat) {
+        set({
+          messages: [...(messages || []), message],
+        });
+      }
+
+      if (isForMe && !isCurrentChat) {
+        const updatedUnread = [...(unreadMessages || []), message];
+
+        set({ unreadMessages: updatedUnread });
+        localStorage.setItem("unreadMessages", JSON.stringify(updatedUnread));
       }
     });
 
     socket.on("editMessage", (messageToEdit) => {
-      const updatedMessages = (get().messages || []).map((message) =>
-        message._id === messageToEdit._id ? messageToEdit : message,
-      );
-
-      set({ messages: updatedMessages });
+      set({
+        messages: (get().messages || []).map((m) =>
+          m._id === messageToEdit._id ? messageToEdit : m,
+        ),
+      });
     });
 
     socket.on("deleteMessage", (messageToDelete) => {
       set({
-        messages: [
-          ...(get().messages?.filter((message) => message._id !== messageToDelete._id) ||
-            []),
-        ],
+        messages: (get().messages || []).filter((m) => m._id !== messageToDelete._id),
       });
     });
 
     socket.on("messageSeen", ({ messageId }) => {
-      const updatedMessages = (get().messages || []).map((msg) =>
-        msg._id === messageId ? { ...msg, is_seen: true } : msg,
-      );
-      const newUnread = (get().unreadMessages || []).filter((m) => m._id !== messageId);
-      set({ messages: updatedMessages, unreadMessages: newUnread });
-      try {
-        localStorage.setItem("unreadMessages", JSON.stringify(newUnread));
-      } catch (error: any) {
-        toast.error(error.response.data.error);
-        console.error(error);
-      }
+      set({
+        messages: (get().messages || []).map((msg) =>
+          msg._id === messageId ? { ...msg, is_seen: true } : msg,
+        ),
+      });
     });
   },
+
   unsubscribeMessages: () => {
     const socket = useAuthStore.getState().socket;
     socket?.off("newMessage");

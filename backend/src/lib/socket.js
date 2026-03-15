@@ -6,7 +6,11 @@ const app = express();
 const server = http.createServer(app);
 
 const io = new Server(server, {
-  cors: ["http://localhost:5173"],
+  cors: {
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST"],
+    credentials: true,
+  },
 });
 
 const userSocketMap = new Map();
@@ -16,7 +20,10 @@ export const getReceiverSocketIds = (userId) => {
 };
 
 io.on("connection", (socket) => {
-  const userId = socket.handshake.query.userId;
+  const userId =
+    (socket.handshake &&
+      (socket.handshake.query?.userId || socket.handshake.auth?.userId)) ||
+    null;
   if (userId) {
     const sockets = userSocketMap.get(userId) || [];
     userSocketMap.set(userId, [...sockets, socket.id]);

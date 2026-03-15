@@ -35,8 +35,8 @@ export const sendFriendRequest = async (req, res) => {
     await newFriendRequest.save();
 
     const populatedRequest = await FriendRequest.findById(newFriendRequest._id)
-      .populate("senderId", "_id firstName lastName email photoUrl")
-      .populate("receiverId", "_id firstName lastName email photoUrl");
+      .populate("senderId", "_id username user_id email photoUrl")
+      .populate("receiverId", "_id username user_id email photoUrl");
 
     const receiverSocketId = getReceiverSocketIds(receiverId);
     if (receiverSocketId) {
@@ -57,9 +57,27 @@ export const sendFriendRequest = async (req, res) => {
 
 export const getFriendRequests = async (req, res) => {
   try {
-    const requests = await FriendRequest.find()
-      .populate("senderId", "_id firstName lastName email photoUrl")
-      .populate("receiverId", "_id firstName lastName email photoUrl");
+    let type = req.query.type;
+    type = typeof type === "string" ? type.trim().toLowerCase() : undefined;
+
+    if (!type || (type !== "received" && type !== "sent")) {
+      return res.status(400).json({ error: "Make sure that the type is right" });
+    }
+
+    let requests = null;
+
+    if (type === "received") {
+      const request = await FriendRequest.find({ receiverId: req.user._id }).populate(
+        "senderId",
+        "_id username user_id photoUrl",
+      );
+      requests = request;
+    } else if ("sent") {
+      requests = await FriendRequest.find({ senderId: req.user._id }).populate(
+        "receiverId",
+        "_id username user_id photoUrl",
+      );
+    }
 
     res.status(200).json(requests);
   } catch (error) {
@@ -107,10 +125,10 @@ export const manageFriendRequest = async (req, res) => {
         await friendRequest.deleteOne();
 
         const populatedSender = await User.findById(senderId).select(
-          "_id firstName lastName email photoUrl",
+          "_id username user_id email photoUrl",
         );
         const populatedReceiver = await User.findById(receiverId).select(
-          "_id firstName lastName email photoUrl",
+          "_id username user_id email photoUrl",
         );
 
         const receiverSocketId = getReceiverSocketIds(receiverId);
@@ -166,7 +184,7 @@ export const getFriends = async (req, res) => {
   try {
     const user = await User.findById(req.user._id).populate(
       "friendsList",
-      "_id firstName lastName email photoUrl",
+      "_id username user_id photoUrl",
     );
 
     res.status(200).json(user.friendsList);
@@ -208,6 +226,44 @@ export const deleteFriend = async (req, res) => {
     }
 
     res.status(201).json({ message: "Deleted friend successfully" });
+  } catch (error) {
+    res.status(500).json({ error: "Internal Server Error" });
+    console.error(error);
+  }
+};
+
+export const getUsers = async (req, res) => {
+  try {
+    const { id, username, page = "1", limit = "5" } = req.query;
+
+    if (!id && !username) {
+      return res.status(400).json({ error: "ID or name can't be empty" });
+    }
+
+    const pageNum = Math.max(1, parseInt(page, 10) || 1);
+    const limitNum = Math.max(1, parseInt(limit, 10) || 5);
+    const skip = (pageNum - 1) * limitNum;
+
+    const excludeIds = [req.user._id, ...(req.user.friendsList || [])];
+
+    let query = null;
+    if (id) {
+      query = {
+        $and: [{ user_id: id }, { _id: { $nin: excludeIds } }],
+      };
+    } else {
+      const usernameRegexp = new RegExp(username, "ig");
+      query = {
+        $and: [{ username: usernameRegexp }, { _id: { $nin: excludeIds } }],
+      };
+    }
+
+    const total = await User.countDocuments(query);
+    const users = await User.find(query).skip(skip).limit(limitNum);
+
+    const totalPages = Math.max(1, Math.ceil(total / limitNum));
+
+    res.status(200).json({ users, totalPages, page: pageNum, total });
   } catch (error) {
     res.status(500).json({ error: "Internal Server Error" });
     console.error(error);

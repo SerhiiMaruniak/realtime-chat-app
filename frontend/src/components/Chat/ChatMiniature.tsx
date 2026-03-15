@@ -14,8 +14,6 @@ const ChatMiniature = ({ user, width, min_width, messages }: ChatMiniatureProps)
   const { onlineUsers } = useAuthStore();
   const { selectedChat, selectChat } = useChatStore();
 
-  const fullName = `${user.firstName} ${user.lastName}`;
-
   return (
     <div
       className={`w-full cursor-pointer duration-150 transition-all rounded-lg flex  gap-2.5 items-center px-2.5 py-1.5 
@@ -47,7 +45,7 @@ const ChatMiniature = ({ user, width, min_width, messages }: ChatMiniatureProps)
           ${selectedChat === user ? "text-secondary_dark" : "text-label-text"}
           `}
         >
-          {fullName}
+          {user.username}
         </h1>
       )}
     </div>

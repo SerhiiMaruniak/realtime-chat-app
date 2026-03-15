@@ -1,26 +1,61 @@
+import { useEffect, useState } from "react";
 import Sidebar from "../components/Chat/Sidebar";
 import Chat from "../components/Chat/Chat";
 import { useChatStore } from "../store/useChatStore";
-import { PageContext } from "../context/PageContext";
-import { useContext } from "react";
 import ExpandedImage from "../components/Chat/Message/ExpandedImage";
+import Navbar from "../components/Home/Navbar";
+import { HomeContext, type HomeContextValue } from "../context/HomeContext";
+import AllFriends from "../components/Friends/AllFriends";
+import Requests from "../components/Friends/Requests";
+import AddFriends from "../components/Friends/AddFriends";
+import { useFriendsStore } from "../store/useFriendsStore";
 
 const Home = () => {
-  const { selectedImage, selectedChat } = useChatStore();
-  const pageContext = useContext(PageContext);
+  const [selectedPage, setSelectedPage] = useState<React.JSX.Element>(<Chat />);
+  const [homeContextValue, setHomeContextValue] = useState<HomeContextValue>("Chat");
+
+  const { selectedImage, selectedChat, subscribeMessages } = useChatStore();
+  const { subscribeFriends, unsubscribeFriends } = useFriendsStore();
+
+  useEffect(() => {
+    switch (homeContextValue) {
+      case "All_Friends":
+        setSelectedPage(<AllFriends />);
+        break;
+      case "Requests":
+        setSelectedPage(<Requests />);
+        break;
+      case "Add_Friends":
+        setSelectedPage(<AddFriends />);
+        break;
+      default:
+        setSelectedPage(<Chat />);
+        break;
+    }
+  }, [homeContextValue]);
+
+  useEffect(() => {
+    subscribeFriends();
+    subscribeMessages();
+
+    return () => unsubscribeFriends();
+  }, [subscribeFriends, unsubscribeFriends, subscribeMessages]);
+
+  useEffect(() => {
+    if (selectedChat) setHomeContextValue("Chat");
+  }, [selectedChat]);
 
   return (
-    <>
+    <HomeContext.Provider value={{ setHomeContextValue, value: homeContextValue }}>
       {selectedImage && <ExpandedImage />}
       <div className="w-full h-full flex">
-        {pageContext && pageContext.screen.width < 500 ? (
-          !selectedChat && <Sidebar />
-        ) : (
-          <Sidebar />
-        )}
-        <Chat />
+        <Sidebar />
+        <div className="flex flex-col w-full items-start justify-start">
+          {!selectedChat && <Navbar />}
+          {selectedPage}
+        </div>
       </div>
-    </>
+    </HomeContext.Provider>
   );
 };
 

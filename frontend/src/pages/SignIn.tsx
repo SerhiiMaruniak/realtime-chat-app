@@ -10,8 +10,7 @@ import { SignInSchema } from "../lib/schemas/schemas";
 
 const SignIn = () => {
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
+    username: "",
     email: "",
     password: "",
   });

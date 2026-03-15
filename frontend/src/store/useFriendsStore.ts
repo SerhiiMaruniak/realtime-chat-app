@@ -7,14 +7,24 @@ import type requestSchema from "../lib/schemas/friendRequestSchema.ts";
 import { useAuthStore } from "./useAuthStore.ts";
 
 interface FriendsProps {
+  users: User[] | null;
   friends: User[] | null;
   friendRequests: requestSchema[] | [];
+  isGettingUsers: boolean;
+  totalPages: number;
+  currentPage: number;
   isGettingFriends: boolean;
-  isSendingFriendRequest: boolean;
+  isGettingFriendRequests: boolean;
+  isSendingFriendRequest: string | null;
   isManagingRequest: string | null;
   isDeletingFriend: string | null;
+  getUsers: (payload: {
+    username: string;
+    user_id: string;
+    page?: number;
+  }) => Promise<void>;
   getFriends: () => Promise<void>;
-  getRequests: () => Promise<void>;
+  getRequests: (type: "sent" | "received") => Promise<void>;
   sendRequest: (id: string) => Promise<void>;
   manageRequest: (data: { id: string; action: string }) => Promise<void>;
   updateFriend: (data: User) => void;
@@ -23,13 +33,46 @@ interface FriendsProps {
   unsubscribeFriends: () => void;
 }
 
-export const useFriendsStore = create<FriendsProps>((set, get) => ({
+export const useFriendsStore = create<FriendsProps>((set) => ({
+  users: null,
   friends: null,
   friendRequests: [],
+  isGettingUsers: false,
   isGettingFriends: false,
-  isSendingFriendRequest: false,
+  isGettingFriendRequests: false,
+  isSendingFriendRequest: null,
   isManagingRequest: null,
   isDeletingFriend: null,
+  totalPages: 1,
+  currentPage: 1,
+
+  getUsers: async (payload) => {
+    set({ isGettingUsers: true });
+
+    try {
+      const { user_id, username, page } = payload;
+
+      let searchParams = "";
+      if (user_id) {
+        searchParams = `?id=${user_id}&page=${page || 1}`;
+      } else {
+        searchParams = `?username=${username}&page=${page || 1}`;
+      }
+
+      const response = await AxiosInstance.get(`/friends/get-users${searchParams}`);
+
+      set({
+        users: response.data.users,
+        totalPages: response.data.totalPages || 1,
+        currentPage: response.data.page || 1,
+      });
+    } catch (error: any) {
+      toast.error(error.response.data.error);
+      console.error(error);
+    } finally {
+      set({ isGettingUsers: false });
+    }
+  },
 
   getFriends: async () => {
     set({ isGettingFriends: true });
@@ -45,26 +88,35 @@ export const useFriendsStore = create<FriendsProps>((set, get) => ({
     }
   },
 
-  getRequests: async () => {
+  getRequests: async (type) => {
+    set({ isGettingFriendRequests: true });
+
     try {
-      const response = await AxiosInstance.get("/friends/requests");
+      const response = await AxiosInstance.get(`/friends/requests`, {
+        params: { type },
+      });
       set({ friendRequests: response.data });
     } catch (error: any) {
       console.error(error);
+    } finally {
+      set({ isGettingFriendRequests: false });
     }
   },
 
   sendRequest: async (id) => {
-    set({ isSendingFriendRequest: true });
+    set({ isSendingFriendRequest: id });
 
     try {
-      await AxiosInstance.post(`/friends/send-request/${id}`);
+      const response = await AxiosInstance.post(`/friends/send-request/${id}`);
+      set((state) => ({
+        friendRequests: [...(state.friendRequests || []), response.data],
+      }));
       toast.success("Sent friend request successfully");
     } catch (error: any) {
       toast.error(error.response.data.error);
       console.error(error);
     } finally {
-      set({ isSendingFriendRequest: false });
+      set({ isSendingFriendRequest: null });
     }
   },
 
@@ -73,6 +125,12 @@ export const useFriendsStore = create<FriendsProps>((set, get) => ({
 
     try {
       await AxiosInstance.put(`/friends/manage-request/${data.id}`, data);
+
+      set((state) => ({
+        friendRequests: [
+          ...(state.friendRequests.filter((req) => req._id !== data.id) || []),
+        ],
+      }));
     } catch (error: any) {
       toast.error(error.response.data.error);
       console.error(error);
@@ -105,7 +163,14 @@ export const useFriendsStore = create<FriendsProps>((set, get) => ({
     const socket = useAuthStore.getState().socket;
 
     socket?.on("addFriend", (newRequest) => {
-      set({ friendRequests: [...(get().friendRequests || []), newRequest] });
+      set((state) => {
+        const exists = state.friendRequests.some((req) => req._id === newRequest._id);
+        return {
+          friendRequests: exists
+            ? state.friendRequests
+            : [...(state.friendRequests || []), newRequest],
+        };
+      });
     });
 
     socket?.on("acceptRequest", (newFriend, friendRequest) => {

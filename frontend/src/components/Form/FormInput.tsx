@@ -3,8 +3,7 @@ import type { core } from "zod";
 import HandleZodError from "../../lib/handleZodError";
 
 interface FormData {
-  firstName: string;
-  lastName: string;
+  username: string;
   email: string;
   password: string;
 }
