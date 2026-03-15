@@ -28,12 +28,12 @@ const Message = ({ message, lastSeenMessageId }: MessageProps) => {
 
   const imageSizeClasses = useMemo(
     () => (isSmallScreen ? "max-w-64 max-h-46" : "max-w-84 max-h-46"),
-    [isSmallScreen]
+    [isSmallScreen],
   );
 
   const messageBoxClasses = useMemo(
     () => (isSmallScreen ? "max-w-64" : "max-w-84"),
-    [isSmallScreen]
+    [isSmallScreen],
   );
 
   useEffect(() => {
@@ -51,7 +51,7 @@ const Message = ({ message, lastSeenMessageId }: MessageProps) => {
           setMessageSeen(message._id);
         }
       },
-      { threshold: 0.5 }
+      { threshold: 0.5 },
     );
 
     const currentRef = messageRef.current;

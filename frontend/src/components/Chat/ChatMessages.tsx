@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useCallback } from "react";
+import { useEffect, useLayoutEffect, useRef, useCallback, useState } from "react";
 import { useChatStore } from "../../store/useChatStore";
 import { useAuthStore } from "../../store/useAuthStore";
 import Message from "./Message/Message";
@@ -7,6 +7,8 @@ import { getDayLabel } from "../../lib/formatDate";
 import { MessageRefsContext } from "../../context/MessageRefsContext";
 
 const ChatMessages = () => {
+  const [intersectedMessageId, setIntersectedMessageId] = useState<string | null>(null);
+
   const {
     messages,
     selectedChat,
@@ -17,6 +19,7 @@ const ChatMessages = () => {
     subscribeMessages,
     unsubscribeMessages,
   } = useChatStore();
+
   const { user } = useAuthStore();
 
   const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -25,6 +28,7 @@ const ChatMessages = () => {
   const messageRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const observerRef = useRef<IntersectionObserver | null>(null);
   const isInitialLoadRef = useRef(true);
+  const firstUnreadIndexRef = useRef<number | null>(null);
 
   useEffect(() => {
     subscribeMessages();
@@ -33,7 +37,10 @@ const ChatMessages = () => {
 
   useEffect(() => {
     if (!selectedChat?._id) return;
+
     isInitialLoadRef.current = true;
+    firstUnreadIndexRef.current = null;
+
     getMessages(selectedChat._id);
   }, [selectedChat?._id, getMessages]);
 
@@ -73,16 +80,23 @@ const ChatMessages = () => {
 
   useLayoutEffect(() => {
     if (!messages || messages.length === 0) return;
+    if (!user?._id) return;
+
     const container = messagesContainerRef.current;
     if (!container) return;
 
+    if (firstUnreadIndexRef.current === null) {
+      firstUnreadIndexRef.current = messages.findIndex(
+        (msg) => msg.receiverId === user._id && !msg.is_seen,
+      );
+    }
+
     const scrollBottom =
       container.scrollHeight - container.scrollTop - container.clientHeight;
+
     const nearBottom = scrollBottom < 150;
 
-    const firstUnreadIndex = messages.findIndex(
-      (msg) => msg.receiverId === user?._id && !msg.is_seen,
-    );
+    const firstUnreadIndex = firstUnreadIndexRef.current;
 
     let scrollTarget: HTMLDivElement | null = null;
 
@@ -94,7 +108,11 @@ const ChatMessages = () => {
 
     if (scrollTarget) {
       requestAnimationFrame(() => {
-        scrollTarget?.scrollIntoView({ behavior: "smooth", block: "start" });
+        scrollTarget?.scrollIntoView({
+          behavior: "auto",
+          block: "start",
+        });
+
         isInitialLoadRef.current = false;
       });
     }
@@ -107,25 +125,46 @@ const ChatMessages = () => {
   const unreadMessages = messages?.filter(
     (msg) => msg.receiverId === user?._id && !msg.is_seen,
   );
+
   const unreadCount = unreadMessages?.length ?? 0;
+
   const firstUnreadIndex =
     unreadCount > 0
       ? (messages?.findIndex((msg) => msg.receiverId === user?._id && !msg.is_seen) ?? -1)
       : -1;
 
-  const moveToMessage = (messageId: string) => {
+  const moveToMessage = async (messageId: string) => {
+    const { selectedChat, loadUntilMessage } = useChatStore.getState();
+    if (!selectedChat?._id) return;
+
     const messageEl = messageRefs.current[messageId];
-    if (!messageEl) return;
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) observer.unobserve(messageEl);
-      },
-      { threshold: 0.5 },
-    );
+    if (!messageEl) {
+      await loadUntilMessage(selectedChat._id, messageId);
+    }
 
-    observer.observe(messageEl);
-    messageEl.scrollIntoView({ behavior: "smooth" });
+    const waitForDom = () => {
+      const el = messageRefs.current[messageId];
+
+      if (el) {
+        el.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+
+        setIntersectedMessageId(messageId);
+
+        setTimeout(() => {
+          setIntersectedMessageId(null);
+        }, 2000);
+
+        return;
+      }
+
+      requestAnimationFrame(waitForDom);
+    };
+
+    waitForDom();
   };
 
   if (isGettingMessages && isInitialLoadRef.current) {
@@ -148,13 +187,19 @@ const ChatMessages = () => {
 
   return (
     <MessageRefsContext.Provider
-      value={{ messageRefs, moveToMessage, intersectedMessageId: null }}
+      value={{
+        messageRefs,
+        moveToMessage,
+        intersectedMessageId,
+        setIntersectedMessageId,
+      }}
     >
       <div
         ref={messagesContainerRef}
         className="flex-1 px-3 py-2.5 w-full flex flex-col items-start justify-start gap-3.5 overflow-y-auto"
       >
         <div ref={startOfMessagesRef} />
+
         {messages.map((message, idx) => {
           const currentDate = getDayLabel(message.createdAt);
           const showDate = currentDate !== lastDate;
@@ -171,15 +216,17 @@ const ChatMessages = () => {
                   <div className="flex-1 border-t border-spec-1-dark" />
                 </div>
               )}
+
               {showUnreadSeparator && unreadCount > 0 && (
                 <div className="my-3 flex items-center w-full">
                   <div className="flex-1 border-t border-spec-1-dark" />
-                  <span className="px-3 text-sm text-label-text">{`${unreadCount} unread message${
-                    unreadCount === 1 ? "" : "s"
-                  }`}</span>
+                  <span className="px-3 text-sm text-label-text">
+                    {`${unreadCount} unread message${unreadCount === 1 ? "" : "s"}`}
+                  </span>
                   <div className="flex-1 border-t border-spec-1-dark" />
                 </div>
               )}
+
               <div
                 className="w-full relative"
                 ref={(el) => {
@@ -189,11 +236,13 @@ const ChatMessages = () => {
                 {!message.is_seen && message.receiverId === user?._id && (
                   <div className="absolute inset-0 left-0 right-0 bg-[rgba(81,66,111,0.09)] border-l-2 border-l-label-text -z-10" />
                 )}
+
                 <Message message={message} lastSeenMessageId={lastSeenMessageId} />
               </div>
             </div>
           );
         })}
+
         <div ref={endOfMessagesRef} />
       </div>
     </MessageRefsContext.Provider>
