@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Search } from "lucide-react";
 import { useFriendsStore } from "../../store/useFriendsStore";
 import Loader from "../Loader";
 import FoundUser from "./Cards/FoundUser";
@@ -48,11 +49,13 @@ const AddFriends = () => {
   };
 
   return (
-    <div className="w-full h-full flex flex-col justify-between items-start gap-4 p-8 overflow-auto">
+    <div className="w-full h-full flex flex-col justify-between items-start gap-4 p-4.5 sm:p-8 overflow-auto">
       <div className="w-full h-auto flex flex-col justify-start items-start gap-[22px]">
         <div className="w-full flex flex-col justify-start items-start gap-2.5">
-          <h1 className="text-3xl text-label-brighter-text font-semibold">Add Friend</h1>
-          <p className="text-lg text-label-text">
+          <h1 className="text-2xl sm:text-3xl text-label-brighter-text font-semibold">
+            Add Friend
+          </h1>
+          <p className="text-base sm:text-lg text-label-text">
             You can find friends by the username or an ID
           </p>
         </div>
@@ -60,15 +63,18 @@ const AddFriends = () => {
           <input
             onChange={(e) => setInputValue(e.target.value)}
             value={inputValue}
-            className="w-full h-11 px-2.5 py-3 rounded-sm bg-spec-1-dark outline-label-text focus:outline placeholder:text-label-text text-white text-sm transition-all duration-150"
+            className="w-full h-11 px-2 sm:px-2.5 py-2 sm:py-3 pr-12 sm:pr-34 rounded-sm bg-spec-1-dark outline-label-text focus:outline placeholder:text-label-text text-white text-sm transition-all duration-150"
             placeholder="johndoe or @john_doe"
             type="text"
           />
           <button
             onClick={findFriend}
-            className="w-28 absolute right-2.5 top-1.5 bottom-1.5 rounded-sm bg-label-text hover:bg-secondary_dark text-sm border-none outline-none text-white cursor-pointer transition-colors duration-150 ease-in-out"
+            className="w-auto sm:w-28 px-1 sm:px-0 absolute right-2.5 top-1.5 bottom-1.5 rounded-sm bg-label-text hover:bg-secondary_dark text-sm border-none outline-none text-white cursor-pointer transition-colors duration-150 ease-in-out"
           >
-            <p>Find a Friend</p>
+            <span className="sm:hidden">
+              <Search />
+            </span>
+            <span className="hidden sm:inline">Find a Friend</span>
           </button>
         </div>
       </div>

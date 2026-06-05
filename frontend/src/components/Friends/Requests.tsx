@@ -11,12 +11,14 @@ const Requests = () => {
   }, [getRequests]);
 
   return (
-    <div className="w-full h-full flex flex-col justify-between items-start gap-4 p-8 overflow-auto">
+    <div className="w-full h-full flex flex-col justify-between items-start gap-4 p-4.5 sm:p-8 overflow-auto">
       <div className="w-full flex flex-col justify-start items-start gap-2.5 border-b border-spec-1-dark pb-4">
-        <h1 className="text-3xl text-label-brighter-text font-semibold">
+        <h1 className="text-2xl sm:text-3xl text-label-brighter-text font-semibold">
           Friend Requests
         </h1>
-        <p className="text-lg text-label-text">Received: {friendRequests.length}</p>
+        <p className="text-base sm:text-lg text-label-text">
+          Received: {friendRequests.length}
+        </p>
       </div>
       <div className="flex flex-col flex-1 justify-start items-center gap-4 w-full h-full overflow-auto">
         {isGettingFriendRequests ? (
