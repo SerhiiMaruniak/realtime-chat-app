@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { LogOut, Settings, UserPlus2 } from "lucide-react";
+import { LogOut, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 import ChatMiniature from "./ChatMiniature";
@@ -118,24 +118,15 @@ const Sidebar = () => {
       <div
         className={`mb-2 w-full flex 
           ${currentWidth === MIN_WIDTH ? "justify-center" : "justify-between"}
-          items-center gap-3 border-b border-spec-1-dark pb-3`}
+          items-center gap-3 border-b border-spec-1-dark pb-3 
+          ${currentWidth === MIN_WIDTH ? "hidden" : "flex"}`}
       >
         <input
           type="text"
           placeholder="Find a chat"
           onChange={(e) => setFilteredFriends(e.target.value)}
-          className={`w-full px-1.5 py-1 duration-100 transition-all bg-spec-1-dark placeholder:text-label-text rounded-sm text-sm text-input-text outline-label-text focus:outline
-            ${currentWidth === MIN_WIDTH ? "hidden" : "flex"}
-            `}
+          className={`w-full px-1.5 py-1 duration-100 transition-all bg-spec-1-dark placeholder:text-label-text rounded-sm text-sm text-input-text outline-label-text focus:outline`}
         />
-        <button
-          className="duration-150 transition-all p-1 hover:bg-spec-1-dark rounded-sm cursor-pointer"
-          title="Add friend"
-          aria-label="Add friend"
-          onClick={() => navigate("/friends")}
-        >
-          <UserPlus2 className="text-label-text" />
-        </button>
       </div>
 
       <div className="w-full flex flex-1 flex-col justify-start items-center overflow-y-auto">
