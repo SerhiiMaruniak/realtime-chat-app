@@ -1,9 +1,8 @@
-import { useContext, useRef, useEffect, useMemo } from "react";
+import { useContext, useRef, useEffect } from "react";
 import { CheckCircle } from "lucide-react";
 import { getHM } from "../../../lib/formatDate";
 import type messageSchema from "../../../lib/schemas/messageSchema";
 import { useChatStore } from "../../../store/useChatStore";
-import { PageContext } from "../../../context/PageContext";
 import { useAuthStore } from "../../../store/useAuthStore";
 import ContextMenu from "./ContextMenu";
 import RepliedMessage from "./RepliedMessage";
@@ -19,22 +18,10 @@ const Message = ({ message, lastSeenMessageId }: MessageProps) => {
   const messageRef = useRef<HTMLDivElement>(null);
   const { selectImage, setMessageSeen, contextMenu, showContextMenu } = useChatStore();
   const { user } = useAuthStore();
-  const pageContext = useContext(PageContext);
   const messageRefsContext = useContext(MessageRefsContext);
 
   const isSent = message.senderId === user?._id;
   const isSeenIndicator = isSent && message._id === lastSeenMessageId && message.is_seen;
-  const isSmallScreen = pageContext && pageContext?.screen.width < 500;
-
-  const imageSizeClasses = useMemo(
-    () => (isSmallScreen ? "max-w-64 max-h-46" : "max-w-84 max-h-46"),
-    [isSmallScreen],
-  );
-
-  const messageBoxClasses = useMemo(
-    () => (isSmallScreen ? "max-w-64" : "max-w-84"),
-    [isSmallScreen],
-  );
 
   useEffect(() => {
     if (!messageRefsContext) return;
@@ -95,7 +82,7 @@ const Message = ({ message, lastSeenMessageId }: MessageProps) => {
         >
           <div className="relative">
             {message.repliedMessage && message.attachments === "" && (
-              <div className={messageBoxClasses}>
+              <div className="max-w-84">
                 <RepliedMessage message={message.repliedMessage} />
               </div>
             )}
@@ -106,7 +93,7 @@ const Message = ({ message, lastSeenMessageId }: MessageProps) => {
             {message.attachments && (
               <div>
                 {message.repliedMessage && (
-                  <div className={imageSizeClasses}>
+                  <div className="max-w-84 max-h-46">
                     <RepliedMessage message={message.repliedMessage} />
                   </div>
                 )}
@@ -114,7 +101,7 @@ const Message = ({ message, lastSeenMessageId }: MessageProps) => {
                 <img
                   src={message.attachments}
                   alt={`Attachment from ${isSent ? "you" : "sender"}`}
-                  className={`bg-spec-1-dark object-cover rounded-lg p-0.5 cursor-pointer ${imageSizeClasses} 
+                  className={`bg-spec-1-dark object-cover rounded-lg p-0.5 cursor-pointer max-w-84 max-h-46 
                   ${
                     !message.content
                       ? isSent
@@ -144,7 +131,7 @@ const Message = ({ message, lastSeenMessageId }: MessageProps) => {
                   ${message.attachments !== "" ? "rounded-tr-none rounded-tl-none" : ""}
                 `}
               >
-                <p className={messageBoxClasses}>{message.content}</p>
+                <p className="max-w-84">{message.content}</p>
 
                 <div className="flex items-center gap-2 justify-end">
                   <div className="flex items-center gap-1.5">
