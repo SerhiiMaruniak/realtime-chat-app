@@ -79,8 +79,6 @@ const Sidebar = () => {
   }, [currentWidth]);
 
   useEffect(() => {
-    getFriends();
-
     const screenWidth = document.documentElement.clientWidth;
 
     if (screenWidth <= 1024) {
@@ -94,7 +92,11 @@ const Sidebar = () => {
         sidebarRef.current.style.display = "flex";
       }
     }
-  }, [getFriends, selectedChat]);
+  }, [selectedChat]);
+
+  useEffect(() => {
+    getFriends();
+  }, [getFriends]);
 
   return (
     <div
