@@ -1,11 +1,11 @@
 import { useEffect, useLayoutEffect, useRef, useCallback, useState } from "react";
 import { useChatStore } from "../../store/useChatStore";
 import { useAuthStore } from "../../store/useAuthStore";
-import Message from "./Message/Message";
+import ChatMessageRow from "./ChatMessageRow";
+import ChatScrollToBottomButton from "./ChatScrollToBottomButton";
 import Loader from "../Loader";
 import { getDayLabel } from "../../lib/formatDate";
 import { MessageRefsContext } from "../../context/MessageRefsContext";
-import { ArrowDown } from "lucide-react";
 
 const ChatMessages = () => {
   const [intersectedMessageId, setIntersectedMessageId] = useState<string | null>(null);
@@ -245,38 +245,17 @@ const ChatMessages = () => {
           const showUnreadSeparator = idx === firstUnreadIndex;
 
           return (
-            <div key={message._id} className="w-full px-2 flex flex-col items-start">
-              {showDate && (
-                <div className="my-3 flex items-center w-full">
-                  <div className="flex-1 border-t border-spec-1-dark" />
-                  <span className="px-3 text-sm text-label-text">{currentDate}</span>
-                  <div className="flex-1 border-t border-spec-1-dark" />
-                </div>
-              )}
-
-              {showUnreadSeparator && unreadCount > 0 && (
-                <div className="my-3 flex items-center w-full">
-                  <div className="flex-1 border-t border-spec-1-dark" />
-                  <span className="px-3 text-sm text-label-text">
-                    {`${unreadCount} unread message${unreadCount === 1 ? "" : "s"}`}
-                  </span>
-                  <div className="flex-1 border-t border-spec-1-dark" />
-                </div>
-              )}
-
-              <div
-                className="w-full relative"
-                ref={(el) => {
-                  messageRefs.current[message._id] = el ?? null;
-                }}
-              >
-                {!message.is_seen && message.receiverId === user?._id && (
-                  <div className="absolute inset-0 left-0 right-0 bg-[rgba(81,66,111,0.09)] border-l-2 border-l-label-text -z-10" />
-                )}
-
-                <Message message={message} lastSeenMessageId={lastSeenMessageId} />
-              </div>
-            </div>
+            <ChatMessageRow
+              key={message._id}
+              message={message}
+              showDate={showDate}
+              currentDate={currentDate}
+              showUnreadSeparator={showUnreadSeparator}
+              unreadCount={unreadCount}
+              userId={user?._id}
+              lastSeenMessageId={lastSeenMessageId}
+              messageRefs={messageRefs}
+            />
           );
         })}
 
@@ -284,18 +263,14 @@ const ChatMessages = () => {
       </div>
 
       {showScrollToBottom && (
-        <button
+        <ChatScrollToBottomButton
           onClick={() =>
             endOfMessagesRef.current?.scrollIntoView({
               behavior: "smooth",
               block: "end",
             })
           }
-          aria-label="Scroll to latest messages"
-          className="fixed right-5 bottom-20 z-50 bg-secondary_dark/50 text-white p-2 rounded-full hover:bg-label-text/40 transition-colors cursor-pointer"
-        >
-          <ArrowDown />
-        </button>
+        />
       )}
     </MessageRefsContext.Provider>
   );
