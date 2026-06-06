@@ -1,10 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { LogOut, Settings } from "lucide-react";
+import { Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 import ChatMiniature from "./ChatMiniature";
 import { useFriendsStore } from "../../store/useFriendsStore";
-import { useAuthStore } from "../../store/useAuthStore";
 import Loader from "../Loader";
 import { useChatStore } from "../../store/useChatStore";
 
@@ -30,7 +29,6 @@ const Sidebar = () => {
 
   const { friends, getFriends, isGettingFriends } = useFriendsStore();
   const { messages, unreadMessages, selectedChat } = useChatStore();
-  const { logout } = useAuthStore();
 
   const handleResize = useCallback(
     (e: MouseEvent) => {
@@ -166,25 +164,23 @@ const Sidebar = () => {
         )}
       </div>
 
-      <div className={`w-full py-1.5 flex justify-between border-t border-spec-1-dark`}>
-        <button
-          className="duration-150 transition-all p-1 rounded-sm hover:bg-spec-1-dark cursor-pointer"
-          onClick={logout}
-        >
-          <LogOut
-            className="text-label-text"
-            size={currentWidth === MIN_WIDTH ? 18 : 24}
-          />
-        </button>
-        <button
-          className="duration-150 transition-all p-1 rounded-sm hover:bg-spec-1-dark cursor-pointer"
+      <div
+        className={`w-full py-1.5 flex justify-start items-center border-t border-spec-1-dark`}
+      >
+        <div
+          className="flex items-center gap-2 w-full duration-150 transition-all p-1 rounded-sm hover:bg-spec-1-dark cursor-pointer"
+          style={{
+            justifyContent: `${currentWidth > MIN_WIDTH ? "flex-start" : "center"}`,
+          }}
           onClick={() => navigate("/settings")}
         >
-          <Settings
-            className="text-label-text"
-            size={currentWidth === MIN_WIDTH ? 18 : 24}
-          />
-        </button>
+          <button>
+            <Settings className="text-label-text" size={24} />
+          </button>
+          {currentWidth > MIN_WIDTH && (
+            <p className="text-md text-label-text">Settings</p>
+          )}
+        </div>
       </div>
     </div>
   );
