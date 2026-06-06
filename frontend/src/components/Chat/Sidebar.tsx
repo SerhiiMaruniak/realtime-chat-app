@@ -1,10 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { LogOut, Settings, UserPlus2 } from "lucide-react";
+import { Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 import ChatMiniature from "./ChatMiniature";
 import { useFriendsStore } from "../../store/useFriendsStore";
-import { useAuthStore } from "../../store/useAuthStore";
 import Loader from "../Loader";
 import { useChatStore } from "../../store/useChatStore";
 
@@ -29,8 +28,7 @@ const Sidebar = () => {
   const navigate = useNavigate();
 
   const { friends, getFriends, isGettingFriends } = useFriendsStore();
-  const { messages, unreadMessages } = useChatStore();
-  const { logout } = useAuthStore();
+  const { messages, unreadMessages, selectedChat } = useChatStore();
 
   const handleResize = useCallback(
     (e: MouseEvent) => {
@@ -79,21 +77,29 @@ const Sidebar = () => {
   }, [currentWidth]);
 
   useEffect(() => {
-    getFriends();
-  }, [getFriends]);
-
-  useEffect(() => {
     const screenWidth = document.documentElement.clientWidth;
 
     if (screenWidth <= 1024) {
       setCurrentWidth(MIN_WIDTH);
     }
-  }, []);
+
+    if (sidebarRef.current) {
+      if (selectedChat && screenWidth < 640) {
+        sidebarRef.current.style.display = "none";
+      } else {
+        sidebarRef.current.style.display = "flex";
+      }
+    }
+  }, [selectedChat]);
+
+  useEffect(() => {
+    getFriends();
+  }, [getFriends]);
 
   return (
     <div
       ref={sidebarRef}
-      className={`relative sm:flex hidden flex-col justify-start items-start border-r border-spec-1-dark bg-secondary_dark px-2.5 py-6 h-full
+      className={`relative flex flex-col justify-start items-start border-r border-spec-1-dark bg-secondary_dark px-2.5 py-6 h-full
       ${currentWidth <= MIN_WIDTH ? "w-20" : "w-80"}
       sm:w-[${currentWidth}px]`}
       style={{ width: currentWidth }}
@@ -110,24 +116,15 @@ const Sidebar = () => {
       <div
         className={`mb-2 w-full flex 
           ${currentWidth === MIN_WIDTH ? "justify-center" : "justify-between"}
-          items-center gap-3 border-b border-spec-1-dark pb-3`}
+          items-center gap-3 border-b border-spec-1-dark pb-3 
+          ${currentWidth === MIN_WIDTH ? "hidden" : "flex"}`}
       >
         <input
           type="text"
           placeholder="Find a chat"
           onChange={(e) => setFilteredFriends(e.target.value)}
-          className={`w-full px-1.5 py-1 duration-100 transition-all bg-spec-1-dark placeholder:text-label-text rounded-sm text-sm text-input-text outline-label-text focus:outline
-            ${currentWidth === MIN_WIDTH ? "hidden" : "flex"}
-            `}
+          className={`w-full px-1.5 py-1 duration-100 transition-all bg-spec-1-dark placeholder:text-label-text rounded-sm text-sm text-input-text outline-label-text focus:outline`}
         />
-        <button
-          className="duration-150 transition-all p-1 hover:bg-spec-1-dark rounded-sm cursor-pointer"
-          title="Add friend"
-          aria-label="Add friend"
-          onClick={() => navigate("/friends")}
-        >
-          <UserPlus2 className="text-label-text" />
-        </button>
       </div>
 
       <div className="w-full flex flex-1 flex-col justify-start items-center overflow-y-auto">
@@ -167,25 +164,23 @@ const Sidebar = () => {
         )}
       </div>
 
-      <div className={`w-full py-1.5 flex justify-between border-t border-spec-1-dark`}>
-        <button
-          className="duration-150 transition-all p-1 rounded-sm hover:bg-spec-1-dark cursor-pointer"
-          onClick={logout}
-        >
-          <LogOut
-            className="text-label-text"
-            size={currentWidth === MIN_WIDTH ? 18 : 24}
-          />
-        </button>
-        <button
-          className="duration-150 transition-all p-1 rounded-sm hover:bg-spec-1-dark cursor-pointer"
+      <div
+        className={`w-full py-1.5 flex justify-start items-center border-t border-spec-1-dark`}
+      >
+        <div
+          className="flex items-center gap-2 w-full duration-150 transition-all p-1 rounded-sm hover:bg-spec-1-dark cursor-pointer"
+          style={{
+            justifyContent: `${currentWidth > MIN_WIDTH ? "flex-start" : "center"}`,
+          }}
           onClick={() => navigate("/settings")}
         >
-          <Settings
-            className="text-label-text"
-            size={currentWidth === MIN_WIDTH ? 18 : 24}
-          />
-        </button>
+          <button>
+            <Settings className="text-label-text" size={24} />
+          </button>
+          {currentWidth > MIN_WIDTH && (
+            <p className="text-md text-label-text">Settings</p>
+          )}
+        </div>
       </div>
     </div>
   );

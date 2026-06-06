@@ -16,7 +16,7 @@ const Request = ({ request }: { request: requestSchema }) => {
       key={request._id}
       className="flex justify-between items-center w-full px-2.5 py-3 border-b border-spec-1-dark"
     >
-      <div className="flex justify-start items-center gap-5 flex-1">
+      <div className="flex justify-start items-center gap-3.5 sm:gap-5 flex-1">
         <img
           className="min-w-12 max-w-18 w-full min-h-12 max-h-18 h-full rounded-full"
           src={
@@ -31,7 +31,7 @@ const Request = ({ request }: { request: requestSchema }) => {
           <p className="text-label-text">@{sender ? sender.user_id : ""}</p>
         </div>
       </div>
-      <div className="flex justify-end items-center flex-2 gap-4">
+      <div className="flex justify-end items-center flex-2 gap-2.5 sm:gap-4">
         <button
           onClick={() => managFriendeRequest("accept")}
           className="bg-spec-1-dark/45 hover:bg-spec-1-dark/20 p-1.5 rounded-md cursor-pointer text-label-text transition-colors duration-100 ease-in-out disabled:cursor-not-allowed"

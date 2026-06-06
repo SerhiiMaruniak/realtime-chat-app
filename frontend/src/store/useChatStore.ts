@@ -35,6 +35,7 @@ interface ChatProps {
   }) => Promise<void>;
   editMessage: (data: { id: string; content: string }) => Promise<void>;
   getMessages: (id: string | null, loadMore?: boolean) => Promise<void>;
+  loadUntilMessage: (chatId: string, messageId: string) => Promise<void>;
   deleteMessage: (id: string) => Promise<void>;
   setMessageSeen: (messageId: string) => Promise<void>;
   showContextMenu: (
@@ -144,6 +145,27 @@ export const useChatStore = create<ChatProps>((set, get) => ({
       toast.error(error.response?.data?.error);
     } finally {
       set({ isGettingMessages: false });
+    }
+  },
+
+  loadUntilMessage: async (chatId: string, messageId: string) => {
+    const { messages, hasMore, getMessages } = get();
+
+    const exists = messages?.some((m) => m._id === messageId);
+
+    if (exists) return;
+
+    let more = hasMore;
+
+    while (more) {
+      await getMessages(chatId, true);
+
+      const state = get();
+
+      const found = state.messages?.some((m) => m._id === messageId);
+      if (found) break;
+
+      more = state.hasMore;
     }
   },
 
