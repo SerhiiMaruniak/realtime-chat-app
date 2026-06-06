@@ -5,6 +5,7 @@ import Message from "./Message/Message";
 import Loader from "../Loader";
 import { getDayLabel } from "../../lib/formatDate";
 import { MessageRefsContext } from "../../context/MessageRefsContext";
+import { ArrowDown } from "lucide-react";
 
 const ChatMessages = () => {
   const [intersectedMessageId, setIntersectedMessageId] = useState<string | null>(null);
@@ -27,8 +28,10 @@ const ChatMessages = () => {
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
   const messageRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const observerRef = useRef<IntersectionObserver | null>(null);
+  const bottomObserverRef = useRef<IntersectionObserver | null>(null);
   const isInitialLoadRef = useRef(true);
   const firstUnreadIndexRef = useRef<number | null>(null);
+  const [showScrollToBottom, setShowScrollToBottom] = useState(false);
 
   useEffect(() => {
     subscribeMessages();
@@ -167,6 +170,40 @@ const ChatMessages = () => {
     waitForDom();
   };
 
+  useEffect(() => {
+    const container = messagesContainerRef.current;
+
+    if (!messages || messages.length === 0) {
+      setShowScrollToBottom(false);
+      return;
+    }
+
+    const lastThree = messages.slice(-3);
+    const ids = lastThree.map((m) => m._id);
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const anyVisible = entries.some((e) => e.isIntersecting);
+        setShowScrollToBottom(!anyVisible);
+      },
+      {
+        root: container,
+        threshold: 0.5,
+      },
+    );
+
+    ids.forEach((id) => {
+      const el = messageRefs.current[id];
+      if (el) observer.observe(el);
+    });
+
+    bottomObserverRef.current = observer;
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [messages]);
+
   if (isGettingMessages && isInitialLoadRef.current) {
     return (
       <div className="w-full flex-1 flex justify-center items-center">
@@ -196,7 +233,7 @@ const ChatMessages = () => {
     >
       <div
         ref={messagesContainerRef}
-        className="flex-1 px-3 py-2.5 w-full flex flex-col items-start justify-start gap-3.5 overflow-y-auto"
+        className="relative flex-1 px-3 py-2.5 w-full flex flex-col items-start justify-start gap-3.5 overflow-y-auto"
       >
         <div ref={startOfMessagesRef} />
 
@@ -245,6 +282,21 @@ const ChatMessages = () => {
 
         <div ref={endOfMessagesRef} />
       </div>
+
+      {showScrollToBottom && (
+        <button
+          onClick={() =>
+            endOfMessagesRef.current?.scrollIntoView({
+              behavior: "smooth",
+              block: "end",
+            })
+          }
+          aria-label="Scroll to latest messages"
+          className="fixed right-5 bottom-20 z-50 bg-secondary_dark/50 text-white p-2 rounded-full hover:bg-label-text/40 transition-colors cursor-pointer"
+        >
+          <ArrowDown />
+        </button>
+      )}
     </MessageRefsContext.Provider>
   );
 };
