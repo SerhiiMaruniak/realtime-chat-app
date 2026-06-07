@@ -48,7 +48,7 @@ const ForgotPasword = () => {
       px-2 sm:px-4 md:px-8 lg:px-20
       py-2 sm:py-4 md:py-8 lg:py-20
       flex flex-col-reverse lg:flex-row
-      justify-center lg:justify-between items-center gap-8"
+      justify-center lg:justify-between items-center"
     >
       <div className="flex flex-col w-full md:w-2/3 max-w-lg items-center justify-center scale-90 sm:scale-100">
         <form className="w-full" onSubmit={handleSubmit} noValidate>

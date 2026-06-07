@@ -48,3 +48,13 @@
     scrollbar-width: none;
   }
 }
+
+.form-distraction {
+  display: flex;
+}
+
+@media screen and (orientation: landscape) and (height <= 500px) {
+  .form-distraction {
+    display: none;
+  }
+}
