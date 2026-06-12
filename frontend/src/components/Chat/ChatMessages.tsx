@@ -30,7 +30,6 @@ const ChatMessages = () => {
   const observerRef = useRef<IntersectionObserver | null>(null);
   const bottomObserverRef = useRef<IntersectionObserver | null>(null);
   const isInitialLoadRef = useRef(true);
-  const firstUnreadIndexRef = useRef<number | null>(null);
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);
 
   useEffect(() => {
@@ -42,7 +41,6 @@ const ChatMessages = () => {
     if (!selectedChat?._id) return;
 
     isInitialLoadRef.current = true;
-    firstUnreadIndexRef.current = null;
 
     getMessages(selectedChat._id);
   }, [selectedChat?._id, getMessages]);
@@ -83,31 +81,17 @@ const ChatMessages = () => {
 
   useLayoutEffect(() => {
     if (!messages || messages.length === 0) return;
-    if (!user?._id) return;
 
     const container = messagesContainerRef.current;
     if (!container) return;
-
-    if (firstUnreadIndexRef.current === null) {
-      firstUnreadIndexRef.current = messages.findIndex(
-        (msg) => msg.receiverId === user._id && !msg.is_seen,
-      );
-    }
 
     const scrollBottom =
       container.scrollHeight - container.scrollTop - container.clientHeight;
 
     const nearBottom = scrollBottom < 150;
 
-    const firstUnreadIndex = firstUnreadIndexRef.current;
-
-    let scrollTarget: HTMLDivElement | null = null;
-
-    if (firstUnreadIndex >= 0 && isInitialLoadRef.current) {
-      scrollTarget = messageRefs.current[messages[firstUnreadIndex]._id] ?? null;
-    } else if (isInitialLoadRef.current || nearBottom) {
-      scrollTarget = endOfMessagesRef.current ?? null;
-    }
+    const scrollTarget =
+      isInitialLoadRef.current || nearBottom ? endOfMessagesRef.current : null;
 
     if (scrollTarget) {
       requestAnimationFrame(() => {

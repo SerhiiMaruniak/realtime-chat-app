@@ -27,6 +27,7 @@ interface ChatProps {
   closeChat: () => void;
   selectImage: (data: string) => void;
   closeImage: () => void;
+  fetchUnreadMessages: () => Promise<void>;
   sendMessage: (data: {
     receiverId: string;
     content: string;
@@ -92,6 +93,18 @@ export const useChatStore = create<ChatProps>((set, get) => ({
   selectImage: (data) => set({ selectedImage: data }),
 
   closeImage: () => set({ selectedImage: null }),
+
+  fetchUnreadMessages: async () => {
+    try {
+      const response = await AxiosInstance.get("/messages/unread");
+      const unreadMessages = response.data ?? [];
+
+      set({ unreadMessages });
+      localStorage.setItem("unreadMessages", JSON.stringify(unreadMessages));
+    } catch (error: any) {
+      toast.error(error.response?.data?.error);
+    }
+  },
 
   sendMessage: async (data) => {
     set({ isSendingMessage: true });

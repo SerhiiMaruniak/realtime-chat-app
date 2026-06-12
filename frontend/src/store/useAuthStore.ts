@@ -54,6 +54,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       set({ user: response.data });
 
       get().connectSocket();
+      await useChatStore.getState().fetchUnreadMessages();
     } catch (error: any) {
       set({ user: null });
       console.error(error.message);
@@ -71,6 +72,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       toast.success("Signed Up successfully!");
 
       get().connectSocket();
+      await useChatStore.getState().fetchUnreadMessages();
     } catch (error: any) {
       toast.error(error.response.data.error);
       console.error(error);
@@ -88,6 +90,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       toast.success("Signed In successfully!");
 
       get().connectSocket();
+      await useChatStore.getState().fetchUnreadMessages();
     } catch (error: any) {
       toast.error(error.response.data.error);
       console.error(error);
@@ -104,6 +107,16 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
       get().disconnectSocket();
       useChatStore.getState().unsubscribeMessages();
+      useChatStore.setState({
+        selectedChat: null,
+        selectedImage: null,
+        messages: null,
+        unreadMessages: null,
+        contextMenu: null,
+        hasMore: true,
+        lastId: null,
+      });
+      localStorage.removeItem("unreadMessages");
     } catch (error: any) {
       toast.error(error.response.data.error);
       console.error(error);

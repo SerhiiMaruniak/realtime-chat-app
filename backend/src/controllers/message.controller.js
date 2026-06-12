@@ -190,6 +190,22 @@ export const getMessages = async (req, res) => {
   }
 };
 
+export const getUnreadMessages = async (req, res) => {
+  try {
+    const unreadMessages = await Message.find({
+      receiverId: req.user._id,
+      is_seen: false,
+    })
+      .populate("repliedMessage", "_id content senderId attachments")
+      .sort({ _id: 1 });
+
+    res.status(200).json(unreadMessages);
+  } catch (error) {
+    res.status(500).json({ error: "Internal Server Error" });
+    console.error(error);
+  }
+};
+
 export const setMessageSeen = async (req, res) => {
   try {
     const messageId = req.params.id;

@@ -3,6 +3,7 @@ import {
   deleteMessage,
   editMessage,
   getMessages,
+  getUnreadMessages,
   getUsers,
   sendMessage,
   setMessageSeen,
@@ -13,6 +14,7 @@ const router = express.Router();
 
 router.get("/users", protectedRoute, getUsers);
 router.get("/get-messages/:id", protectedRoute, getMessages);
+router.get("/unread", protectedRoute, getUnreadMessages);
 
 router.post("/send-message", protectedRoute, sendMessage);
 
