@@ -82,6 +82,11 @@ export const deleteMessage = async (req, res) => {
       return res.status(400).json({ error: "You aren't the owner of this message" });
     }
 
+    if (message.attachments !== "") {
+      const filename = message.attachments.split("/").pop().split(".")[0];
+      await cloudinary.uploader.destroy(filename);
+    }
+
     await message.deleteOne();
 
     const receiverSocketIds = getReceiverSocketIds(message.receiverId);
