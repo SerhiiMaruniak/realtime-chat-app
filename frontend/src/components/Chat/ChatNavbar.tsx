@@ -5,7 +5,7 @@ const ChatNavbar = () => {
   const { selectedChat, closeChat } = useChatStore();
 
   return (
-    <div className="flex w-full justify-between items-center bg-secondary_dark px-5 py-2">
+    <div className="flex w-full justify-between items-center bg-secondary px-5 py-2">
       <div className="flex justify-start items-center gap-2.5">
         <img
           className="w-10 h-10 rounded-full object-cover"

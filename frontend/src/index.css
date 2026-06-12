@@ -1,13 +1,112 @@
 @import "tailwindcss";
 
+:root {
+  --main: #ffffff;
+  --secondary: #ececec;
+  --spec-1: #c7c7c7;
+  --spec-2: #5a5a5a;
+  --label-text: #333333;
+  --label-brighter-text: #000000;
+  --input-text: #111111;
+}
+
+[data-theme="ocean-mist"] {
+  --main: #1f2f3f;
+  --secondary: #2f455a;
+  --spec-1: #4f6d7a;
+  --spec-2: #8fb9c9;
+  --label-text: #b7d8e2;
+  --label-brighter-text: #d7edf3;
+  --input-text: #ffffff;
+}
+
+[data-theme="forest-glow"] {
+  --main: #1f2b24;
+  --secondary: #2f4337;
+  --spec-1: #4f6f5a;
+  --spec-2: #89c7a3;
+  --label-text: #b5e2c3;
+  --label-brighter-text: #d6f2de;
+  --input-text: #ffffff;
+}
+
+[data-theme="rose-quartz"] {
+  --main: #31242b;
+  --secondary: #4a3641;
+  --spec-1: #705060;
+  --spec-2: #c78fa8;
+  --label-text: #ecc0d1;
+  --label-brighter-text: #f7d8e5;
+  --input-text: #ffffff;
+}
+
+[data-theme="sunset-peach"] {
+  --main: #35271f;
+  --secondary: #523c30;
+  --spec-1: #7a5b4d;
+  --spec-2: #d8a38b;
+  --label-text: #f0c7b5;
+  --label-brighter-text: #f8dfd2;
+  --input-text: #ffffff;
+}
+
+[data-theme="arctic-blue"] {
+  --main: #1d2933;
+  --secondary: #324657;
+  --spec-1: #53758e;
+  --spec-2: #9ac8ea;
+  --label-text: #c7e4f8;
+  --label-brighter-text: #e4f4ff;
+  --input-text: #ffffff;
+}
+
+[data-theme="emerald-silk"] {
+  --main: #182520;
+  --secondary: #284037;
+  --spec-1: #3f6a5a;
+  --spec-2: #7fd0b0;
+  --label-text: #b6ead6;
+  --label-brighter-text: #dff8ed;
+  --input-text: #ffffff;
+}
+
+[data-theme="mocha-cream"] {
+  --main: #2a221d;
+  --secondary: #43362e;
+  --spec-1: #6a5549;
+  --spec-2: #c8ab95;
+  --label-text: #e6d2c4;
+  --label-brighter-text: #f5e9df;
+  --input-text: #ffffff;
+}
+
+[data-theme="black-white"] {
+  --main: #000000;
+  --secondary: #1f1f1f;
+  --spec-1: #4a4a4a;
+  --spec-2: #bfbfbf;
+  --label-text: #d9d9d9;
+  --label-brighter-text: #f2f2f2;
+  --input-text: #ffffff;
+}
+
+[data-theme="amethyst-dusk"] {
+  --main: #202030;
+  --secondary: #39304a;
+  --spec-1: #51426f;
+  --spec-2: #9e89c7;
+  --label-text: #bda5ec;
+  --label-brighter-text: #bda5ec;
+  --input-text: #ffffff;
+}
+
 @theme {
-  --color-main_dark: #202030;
-  --color-secondary_dark: #39304a;
-  --color-spec-1-dark: #51426f;
-  --color-spec-2-dark: #7d7461;
-  --color-label-text: #9e89c7;
-  --color-label-brighter-text: #bda5ec;
-  --color-input-text: #ffffff;
+  --color-main: var(--main);
+  --color-secondary: var(--secondary);
+  --color-spec-1: var(--spec-1);
+  --color-label-text: var(--label-text);
+  --color-label-brighter-text: var(--label-brighter-text);
+  --color-input-text: var(--input-text);
 
   --animate-zoomin: zoomin 0.2s cubic-bezier(0.22, 1, 0.36, 1);
   --animate-slidedown: slidedown 0.22s cubic-bezier(0.22, 1, 0.36, 1);

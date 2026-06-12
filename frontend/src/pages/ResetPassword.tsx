@@ -55,7 +55,7 @@ const ResetPassword = () => {
       className="
       w-full
       min-h-screen
-      bg-secondary_dark
+      bg-secondary
       px-2 sm:px-4 md:px-8 lg:px-20
       py-2 sm:py-4 md:py-8 lg:py-20
       flex flex-col lg:flex-row

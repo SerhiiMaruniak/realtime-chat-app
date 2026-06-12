@@ -99,7 +99,7 @@ const Sidebar = () => {
   return (
     <div
       ref={sidebarRef}
-      className={`relative flex flex-col justify-start items-start border-r border-spec-1-dark bg-secondary_dark px-2.5 py-6 h-full
+      className={`relative flex flex-col justify-start items-start border-r border-spec-1 bg-secondary px-2.5 py-6 h-full
       ${currentWidth <= MIN_WIDTH ? "w-20" : "w-80"}
       sm:w-[${currentWidth}px]`}
       style={{ width: currentWidth }}
@@ -116,14 +116,14 @@ const Sidebar = () => {
       <div
         className={`mb-2 w-full flex 
           ${currentWidth === MIN_WIDTH ? "justify-center" : "justify-between"}
-          items-center gap-3 border-b border-spec-1-dark pb-3 
+          items-center gap-3 border-b border-spec-1 pb-3 
           ${currentWidth === MIN_WIDTH ? "hidden" : "flex"}`}
       >
         <input
           type="text"
           placeholder="Find a chat"
           onChange={(e) => setFilteredFriends(e.target.value)}
-          className={`w-full px-1.5 py-1 duration-100 transition-all bg-spec-1-dark placeholder:text-label-text rounded-sm text-sm text-input-text outline-label-text focus:outline`}
+          className={`w-full px-1.5 py-1 duration-100 transition-all bg-spec-1 placeholder:text-label-text rounded-sm text-sm text-input-text outline-label-text focus:outline`}
         />
       </div>
 
@@ -165,10 +165,10 @@ const Sidebar = () => {
       </div>
 
       <div
-        className={`w-full py-1.5 flex justify-start items-center border-t border-spec-1-dark`}
+        className={`w-full py-1.5 flex justify-start items-center border-t border-spec-1`}
       >
         <div
-          className="flex items-center gap-2 w-full duration-150 transition-all p-1 rounded-sm hover:bg-spec-1-dark cursor-pointer"
+          className="flex items-center gap-2 w-full duration-150 transition-all p-1 rounded-sm hover:bg-spec-1 cursor-pointer"
           style={{
             justifyContent: `${currentWidth > MIN_WIDTH ? "flex-start" : "center"}`,
           }}

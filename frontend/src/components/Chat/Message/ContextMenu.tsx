@@ -125,7 +125,7 @@ const ContextMenu = ({ message }: ContextProps) => {
       <div
         id="context_menu"
         ref={contextRef}
-        className="absolute z-50 px-1.5 py-2 bg-secondary_dark rounded-md animate-slidedown"
+        className="absolute z-50 px-1.5 py-2 bg-secondary rounded-md animate-slidedown"
         style={{
           left: position.x,
           top: position.y,
@@ -133,13 +133,13 @@ const ContextMenu = ({ message }: ContextProps) => {
       >
         <div className="flex flex-col items-start">
           <button
-            className="w-38 text-left px-1.5 py-1 cursor-pointer text-label-text hover:bg-label-text hover:text-spec-1-dark rounded-sm"
+            className="w-38 text-left px-1.5 py-1 cursor-pointer text-label-text hover:bg-label-text hover:text-spec-1 rounded-sm"
             onClick={handleReply}
           >
             Reply
           </button>
           <button
-            className="w-38 text-left px-1.5 py-1 cursor-pointer text-label-text hover:bg-label-text hover:text-spec-1-dark rounded-sm"
+            className="w-38 text-left px-1.5 py-1 cursor-pointer text-label-text hover:bg-label-text hover:text-spec-1 rounded-sm"
             onClick={handleEdit}
             style={{
               display: user?._id === message.receiverId ? "none" : "block",
@@ -148,13 +148,13 @@ const ContextMenu = ({ message }: ContextProps) => {
             Edit
           </button>
           <button
-            className="w-38 text-left px-1.5 py-1 cursor-pointer text-label-text hover:bg-label-text hover:text-spec-1-dark rounded-sm"
+            className="w-38 text-left px-1.5 py-1 cursor-pointer text-label-text hover:bg-label-text hover:text-spec-1 rounded-sm"
             onClick={handleCopy}
           >
             Copy
           </button>
           <button
-            className="w-38 text-left px-1.5 py-1 cursor-pointer text-label-text hover:bg-label-text hover:text-spec-1-dark rounded-sm"
+            className="w-38 text-left px-1.5 py-1 cursor-pointer text-label-text hover:bg-label-text hover:text-spec-1 rounded-sm"
             onClick={handleDelete}
             style={{
               display: user?._id === message.receiverId ? "none" : "block",

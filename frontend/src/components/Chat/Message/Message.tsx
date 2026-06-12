@@ -101,7 +101,7 @@ const Message = ({ message, lastSeenMessageId }: MessageProps) => {
                 <img
                   src={message.attachments}
                   alt={`Attachment from ${isSent ? "you" : "sender"}`}
-                  className={`bg-spec-1-dark object-cover rounded-lg p-0.5 cursor-pointer max-w-84 max-h-46 
+                  className={`bg-spec-1 object-cover rounded-lg p-0.5 cursor-pointer max-w-84 max-h-46 
                   ${
                     !message.content
                       ? isSent
@@ -126,7 +126,7 @@ const Message = ({ message, lastSeenMessageId }: MessageProps) => {
 
             {message.content && (
               <div
-                className={`px-2 py-1.5 bg-spec-1-dark text-input-text rounded-lg max-w-96 break-words 
+                className={`px-2 py-1.5 bg-spec-1 text-input-text rounded-lg max-w-96 break-words 
                   ${isSent ? "rounded-br-none" : "rounded-bl-none"}
                   ${message.attachments !== "" ? "rounded-tr-none rounded-tl-none" : ""}
                 `}

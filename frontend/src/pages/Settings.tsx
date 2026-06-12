@@ -7,6 +7,7 @@ import { useAuthStore } from "../store/useAuthStore";
 import FormInput from "../components/Form/FormInput";
 import FormButton from "../components/Form/FormButton";
 import { UpdateProfileSchema } from "../lib/schemas/schemas";
+import themes from "../lib/color_themes";
 
 const Settings = () => {
   const { user, updateProfile, isUpdatingProfile, logout } = useAuthStore();
@@ -51,9 +52,14 @@ const Settings = () => {
     updateProfile({ profilePic: imagePreview, ...validated.data });
   };
 
+  const handleThemeChange = (theme: string) => {
+    localStorage.setItem("color_theme", theme);
+    document.documentElement.setAttribute("data-theme", theme);
+  };
+
   return (
     <div className="w-full h-full rounded-xl flex flex-col justify-start items-center p-1 sm:p-5.5">
-      <div className="flex flex-col justify-start items-center gap-4.5 max-w-[1444px] w-full h-full sm:bg-secondary_dark px-3.5 py-4 rounded-md">
+      <div className="flex flex-col justify-start items-center gap-4.5 max-w-[1444px] w-full h-full sm:bg-secondary px-3.5 py-4 rounded-md">
         <div className="w-full h-auto flex justify-start items-center">
           <button
             className="duration-150 transition-all cursor-pointer text-label-text hover:text-label-brighter-text"
@@ -90,13 +96,13 @@ const Settings = () => {
                 />
                 <button
                   type="button"
-                  className="duration-150 transition-all absolute bg-label-text hover:bg-spec-1-dark rounded-full p-1.5 bottom-0 right-0 cursor-pointer group"
+                  className="duration-150 transition-all absolute bg-label-text hover:bg-spec-1 rounded-full p-1.5 bottom-0 right-0 cursor-pointer group"
                   onClick={() => {
                     fileInputRef.current?.click();
                   }}
                 >
                   <Camera
-                    className="duration-150 transition-all text-spec-1-dark group-hover:text-label-text"
+                    className="duration-150 transition-all text-spec-1 group-hover:text-label-text"
                     size={20}
                   />
                 </button>
@@ -116,8 +122,25 @@ const Settings = () => {
             </form>
           </div>
           <div className="w-full">
+            <h1 className="text-label-text font-semibold text-2xl mb-4.5">Themes:</h1>
+            <ul className="grid grid-cols-8 gap-y-10 place-items-center w-full">
+              {themes.map((theme, key) => (
+                <li
+                  title={theme.name.replace("-", " ")}
+                  aria-label={theme.name}
+                  key={key}
+                  className="rounded-full w-16 h-16 cursor-pointer outline-0 outline-input-text hover:outline-2 transition-normal duration-100"
+                  style={{
+                    backgroundImage: `linear-gradient(60deg, ${theme.colors.main}, ${theme.colors.secondary})`,
+                  }}
+                  onClick={() => handleThemeChange(theme.name)}
+                />
+              ))}
+            </ul>
+          </div>
+          <div className="w-full">
             <button
-              className="w-full h-[52px] duration-150 transition-all cursor-pointer rounded-sm bg-spec-1-dark text-label-text hover:bg-red-800 hover:text-red-200 font-semibold"
+              className="w-full h-[52px] duration-150 transition-all cursor-pointer rounded-sm bg-spec-1 text-label-text hover:bg-red-800 hover:text-red-200 font-semibold"
               onClick={logout}
             >
               Logout

@@ -42,9 +42,18 @@ const App = () => {
     return () => document.removeEventListener("mousedown", handleClick);
   }, [showContextMenu]);
 
+  useEffect(() => {
+    const localTheme = localStorage.getItem("color_theme");
+
+    document.documentElement.setAttribute(
+      "data-theme",
+      localTheme ? localTheme : "default",
+    );
+  }, []);
+
   if (isCheckingAuth && !user) {
     return (
-      <div className="flex items-center justify-center w-full h-screen bg-main_dark">
+      <div className="flex items-center justify-center w-full h-screen bg-main">
         <Loader size={48} className="text-label-brighter-text" />
       </div>
     );
@@ -52,7 +61,7 @@ const App = () => {
 
   return (
     <div
-      className="bg-main_dark w-full h-screen flex justify-center items-center font-[Roboto]"
+      className="bg-main w-full h-screen flex justify-center items-center font-[Roboto]"
       onContextMenu={(e) => {
         e.preventDefault();
       }}

@@ -17,8 +17,8 @@ const ChatMiniature = ({ user, width, min_width, messages }: ChatMiniatureProps)
   return (
     <div
       className={`w-full cursor-pointer duration-150 transition-all rounded-lg flex  gap-2.5 items-center px-2.5 py-1.5 
-        ${selectedChat === user ? "bg-label-text" : "bg-secondary_dark"} 
-        ${selectedChat !== user ? "hover:bg-spec-1-dark" : ""}
+        ${selectedChat === user ? "bg-label-text" : "bg-secondary"} 
+        ${selectedChat !== user ? "hover:bg-spec-1" : ""}
         ${width === min_width ? "justify-center" : "justify-start"}
         
         `}
@@ -32,7 +32,7 @@ const ChatMiniature = ({ user, width, min_width, messages }: ChatMiniatureProps)
         />
         {messages && messages.length > 0 && (
           <div className="absolute -top-1 -left-2 bg-label-text w-6 h-6 rounded-full">
-            <p className="text-center text-secondary_dark">{messages.length}</p>
+            <p className="text-center text-secondary">{messages.length}</p>
           </div>
         )}
         {onlineUsers.includes(user._id) && (
@@ -42,7 +42,7 @@ const ChatMiniature = ({ user, width, min_width, messages }: ChatMiniatureProps)
       {width !== min_width && (
         <h1
           className={`text-md max-w-9/12 truncate
-          ${selectedChat === user ? "text-secondary_dark" : "text-label-text"}
+          ${selectedChat === user ? "text-secondary" : "text-label-text"}
           `}
         >
           {user.username}
