@@ -9,15 +9,11 @@ const Navbar = () => {
   };
 
   return (
-    <div className="flex justify-start items-center gap-3.5 w-full bg-secondary_dark border-b border-spec-1-dark px-3 py-1">
-      <h1 className="hidden sm:block text-label-brighter-text text-base font-semibold">
-        ChatName
-      </h1>
-      <p className="hidden sm:block text-main_dark">|</p>
-      <ul className="flex justify-center sm:justify-start items-center gap-4 w-full">
+    <div className="flex justify-start items-center w-full bg-secondary_dark border-b border-spec-1-dark px-3 py-1">
+      <ul className="flex justify-center sm:justify-start items-center gap-2.5 sm:gap-4 w-full">
         <li
           onClick={() => handleChangePage("All_Friends")}
-          className="cursor-pointer text-label-text text-sm hover:bg-spec-1-dark/65 px-3 py-1 rounded-xs transition-all ease-in-out duration-200"
+          className="cursor-pointer text-label-text text-sm hover:bg-spec-1-dark/65 px-1 sm:px-3 py-1 rounded-xs transition-all ease-in-out duration-200"
           style={{
             backgroundColor:
               homeContext?.value === "All_Friends"
@@ -29,7 +25,7 @@ const Navbar = () => {
         </li>
         <li
           onClick={() => handleChangePage("Requests")}
-          className="cursor-pointer text-label-text text-sm hover:bg-spec-1-dark/65 px-3 py-1 rounded-xs transition-all ease-in-out duration-200"
+          className="cursor-pointer text-label-text text-sm hover:bg-spec-1-dark/65 px-1 sm:px-3 py-1 rounded-xs transition-all ease-in-out duration-200"
           style={{
             backgroundColor:
               homeContext?.value === "Requests"
@@ -41,7 +37,7 @@ const Navbar = () => {
         </li>
         <li
           onClick={() => handleChangePage("Add_Friends")}
-          className="cursor-pointer text-main_dark text-sm bg-label-text/75 hover:bg-spec-1-dark/75 hover:text-label-text px-3 py-1 rounded-xs transition-all ease-in-out duration-200"
+          className="cursor-pointer text-main_dark text-sm bg-label-text/75 hover:bg-spec-1-dark/75 hover:text-label-text px-2 sm:px-3 py-1 rounded-xs transition-all ease-in-out duration-200"
           style={{
             backgroundColor:
               homeContext?.value === "Add_Friends"
