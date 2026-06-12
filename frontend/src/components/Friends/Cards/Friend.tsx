@@ -16,7 +16,7 @@ const Friend = ({ friend }: { friend: User }) => {
     <div
       onClick={() => selectChat(friend)}
       key={friend._id}
-      className="flex justify-between items-center w-full px-2.5 py-3 border-b border-spec-1-dark"
+      className="flex justify-between items-center w-full px-2.5 py-3 border-b border-spec-1-dark hover:bg-secondary_dark rounded-md cursor-pointer transition-colors duration-100"
     >
       <div className="flex justify-start items-center gap-5 flex-1">
         <img
