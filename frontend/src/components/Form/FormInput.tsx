@@ -68,7 +68,7 @@ const FormInput = ({
           className={`peer w-full rounded-sm border 
             transition-all duration-150
             ${error ? "border-red-500" : "border-gray-500"} 
-            bg-spec-1-dark p-3 text-sm text-input-text 
+            bg-spec-1 p-3 text-sm text-input-text 
             ${error ? "focus:border-red-400" : "focus:border-label-text"}
             focus:outline-none`}
           onChange={(e) => {

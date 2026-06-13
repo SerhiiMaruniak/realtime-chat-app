@@ -63,13 +63,13 @@ const AddFriends = () => {
           <input
             onChange={(e) => setInputValue(e.target.value)}
             value={inputValue}
-            className="w-full h-11 px-2 sm:px-2.5 py-2 sm:py-3 pr-12 sm:pr-34 rounded-sm bg-spec-1-dark outline-label-text focus:outline placeholder:text-label-text text-white text-sm transition-all duration-150"
+            className="w-full h-11 px-2 sm:px-2.5 py-2 sm:py-3 pr-12 sm:pr-34 rounded-sm bg-spec-1 outline-label-text focus:outline placeholder:text-label-text text-white text-sm transition-all duration-150"
             placeholder="johndoe or @john_doe"
             type="text"
           />
           <button
             onClick={findFriend}
-            className="w-auto sm:w-28 px-1 sm:px-0 absolute right-2.5 top-1.5 bottom-1.5 rounded-sm bg-label-text hover:bg-secondary_dark text-sm border-none outline-none text-white cursor-pointer transition-colors duration-150 ease-in-out"
+            className="w-auto sm:w-28 px-1 sm:px-0 absolute right-2.5 top-1.5 bottom-1.5 rounded-sm bg-label-text hover:bg-secondary text-sm border-none outline-none text-white cursor-pointer transition-colors duration-150 ease-in-out"
           >
             <span className="sm:hidden">
               <Search />
@@ -80,7 +80,7 @@ const AddFriends = () => {
       </div>
       <div className="flex flex-col flex-1 justify-start items-center gap-4 w-full h-full overflow-auto">
         {isGettingUsers ? (
-          <Loader className="mx-auto my-auto text-spec-1-dark" size={48} />
+          <Loader className="mx-auto my-auto text-spec-1" size={48} />
         ) : users && users.length > 0 ? (
           users.map((user) => {
             return <FoundUser user={user} key={user._id} />;
@@ -95,7 +95,7 @@ const AddFriends = () => {
           <button
             onClick={() => goToPage(currentPage - 1)}
             disabled={currentPage === 1}
-            className="duration-150 px-3 py-1 rounded bg-spec-1-dark text-label-text cursor-pointer hover:opacity-75 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:opacity-40"
+            className="duration-150 px-3 py-1 rounded bg-spec-1 text-label-text cursor-pointer hover:opacity-75 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:opacity-40"
           >
             Prev
           </button>
@@ -106,7 +106,7 @@ const AddFriends = () => {
               <button
                 key={page}
                 onClick={() => goToPage(page)}
-                className={`duration-150 px-3 py-1 rounded cursor-pointer hover:opacity-75 ${currentPage === page ? "bg-label-text text-white" : "bg-spec-1-dark text-label-text"}`}
+                className={`duration-150 px-3 py-1 rounded cursor-pointer hover:opacity-75 ${currentPage === page ? "bg-label-text text-white" : "bg-spec-1 text-label-text"}`}
               >
                 {page}
               </button>
@@ -116,7 +116,7 @@ const AddFriends = () => {
           <button
             onClick={() => goToPage(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className="duration-150 px-3 py-1 rounded bg-spec-1-dark text-label-text cursor-pointer hover:opacity-75 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:opacity-40"
+            className="duration-150 px-3 py-1 rounded bg-spec-1 text-label-text cursor-pointer hover:opacity-75 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:opacity-40"
           >
             Next
           </button>

@@ -135,7 +135,7 @@ const ChatInput = () => {
             <img
               src={imagePreview}
               alt="preview"
-              className="max-h-32 rounded-lg border border-spec-1-dark"
+              className="max-h-32 rounded-lg border border-spec-1"
             />
             <button
               type="button"
@@ -155,7 +155,7 @@ const ChatInput = () => {
           value={messageContent.content}
           onChange={(e) => handleInput(e)}
           placeholder="Message..."
-          className="flex-1 min-h-[44px] px-3 py-2 pr-24 rounded-lg bg-spec-1-dark text-input-text text-sm placeholder:text-secondary_dark outline-none resize-none leading-relaxed no-scrollbar"
+          className="flex-1 min-h-[44px] px-3 py-2 pr-24 rounded-lg bg-spec-1 text-input-text text-sm placeholder:text-secondary outline-none resize-none leading-relaxed no-scrollbar"
         />
         <input
           ref={fileInputRef}
@@ -180,7 +180,7 @@ const ChatInput = () => {
           )}
           <button
             type="button"
-            className="bg-label-brighter-text hover:bg-label-text p-1.5 rounded-sm text-spec-1-dark cursor-pointer hover:-spec-1-dark duration-150 transition-all"
+            className="bg-label-brighter-text hover:bg-label-text p-1.5 rounded-sm text-spec-1 cursor-pointer hover:-spec-1 duration-150 transition-all"
             onClick={handleSendMessage}
           >
             {isSendingMessage ? (

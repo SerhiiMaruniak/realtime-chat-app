@@ -26,19 +26,19 @@ const ChatMessageRow = ({
   <div className="w-full px-2 flex flex-col items-start">
     {showDate && (
       <div className="my-3 flex items-center w-full">
-        <div className="flex-1 border-t border-spec-1-dark" />
+        <div className="flex-1 border-t border-spec-1" />
         <span className="px-3 text-sm text-label-text">{currentDate}</span>
-        <div className="flex-1 border-t border-spec-1-dark" />
+        <div className="flex-1 border-t border-spec-1" />
       </div>
     )}
 
     {showUnreadSeparator && unreadCount > 0 && (
       <div className="my-3 flex items-center w-full">
-        <div className="flex-1 border-t border-spec-1-dark" />
+        <div className="flex-1 border-t border-spec-1" />
         <span className="px-3 text-sm text-label-text">
           {`${unreadCount} unread message${unreadCount === 1 ? "" : "s"}`}
         </span>
-        <div className="flex-1 border-t border-spec-1-dark" />
+        <div className="flex-1 border-t border-spec-1" />
       </div>
     )}
 

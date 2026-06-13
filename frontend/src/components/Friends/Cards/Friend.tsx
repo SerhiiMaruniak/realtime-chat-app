@@ -16,7 +16,7 @@ const Friend = ({ friend }: { friend: User }) => {
     <div
       onClick={() => selectChat(friend)}
       key={friend._id}
-      className="flex justify-between items-center w-full px-2.5 py-3 border-b border-spec-1-dark hover:bg-secondary_dark rounded-md cursor-pointer transition-colors duration-100"
+      className="flex justify-between items-center w-full px-2.5 py-3 border-b border-spec-1 hover:bg-secondary rounded-md cursor-pointer transition-colors duration-100"
     >
       <div className="flex justify-start items-center gap-5 flex-1">
         <img
@@ -36,7 +36,7 @@ const Friend = ({ friend }: { friend: User }) => {
       <div className="flex justify-end items-center flex-2 gap-4">
         <button
           onClick={handleDeleteFriend}
-          className="bg-spec-1-dark/45 hover:bg-spec-1-dark/20 p-1.5 rounded-md cursor-pointer text-label-text transition-colors duration-100 ease-in-out disabled:cursor-not-allowed"
+          className="bg-spec-1/45 hover:bg-spec-1/20 p-1.5 rounded-md cursor-pointer text-label-text transition-colors duration-100 ease-in-out disabled:cursor-not-allowed"
         >
           {isDeletingFriend === friend._id ? <Loader /> : <UserMinus />}
         </button>

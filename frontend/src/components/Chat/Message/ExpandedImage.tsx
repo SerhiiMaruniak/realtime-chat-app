@@ -53,7 +53,7 @@ const ExpandedImage = () => {
     >
       <button
         type="button"
-        className="absolute z-50 top-4 right-4 flex h-10 w-10 items-center justify-center rounded-full bg-secondary_dark/90 text-input-text shadow-lg transition hover:bg-secondary_dark cursor-pointer"
+        className="absolute z-50 top-4 right-4 flex h-10 w-10 items-center justify-center rounded-full bg-secondary/90 text-input-text shadow-lg transition hover:bg-secondary cursor-pointer"
         onClick={(event) => {
           event.stopPropagation();
           closeImage();
@@ -64,12 +64,12 @@ const ExpandedImage = () => {
       </button>
 
       <div
-        className="absolute z-50 bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 rounded-full bg-secondary_dark/90 px-3 py-2 text-input-text shadow-lg"
+        className="absolute z-50 bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 rounded-full bg-secondary/90 px-3 py-2 text-input-text shadow-lg"
         onClick={(event) => event.stopPropagation()}
       >
         <button
           type="button"
-          className="flex h-9 w-9 items-center justify-center rounded-full transition hover:bg-spec-1-dark cursor-pointer"
+          className="flex h-9 w-9 items-center justify-center rounded-full transition hover:bg-spec-1 cursor-pointer"
           onClick={() =>
             setScale((currentScale) => Math.max(MIN_SCALE, currentScale - SCALE_STEP))
           }
@@ -79,7 +79,7 @@ const ExpandedImage = () => {
         </button>
         <button
           type="button"
-          className="flex h-9 w-9 items-center justify-center rounded-full transition hover:bg-spec-1-dark cursor-pointer"
+          className="flex h-9 w-9 items-center justify-center rounded-full transition hover:bg-spec-1 cursor-pointer"
           onClick={() => setScale(1)}
           aria-label="Reset zoom"
         >
@@ -87,7 +87,7 @@ const ExpandedImage = () => {
         </button>
         <button
           type="button"
-          className="flex h-9 w-9 items-center justify-center rounded-full transition hover:bg-spec-1-dark cursor-pointer"
+          className="flex h-9 w-9 items-center justify-center rounded-full transition hover:bg-spec-1 cursor-pointer"
           onClick={() =>
             setScale((currentScale) => Math.min(MAX_SCALE, currentScale + SCALE_STEP))
           }
