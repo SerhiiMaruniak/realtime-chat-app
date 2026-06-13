@@ -1,61 +1,12 @@
-import { useState, useRef } from "react";
-import { Camera, X } from "lucide-react";
-import * as z from "zod";
+import { X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-import { useAuthStore } from "../store/useAuthStore";
-import FormInput from "../components/Form/FormInput";
-import FormButton from "../components/Form/FormButton";
-import { UpdateProfileSchema } from "../lib/schemas/schemas";
-import themes from "../lib/color_themes";
+import UpdateProfile from "../components/Settings/UpdateProfile";
+import Themes from "../components/Settings/Themes";
+import Logout from "../components/Settings/Logout";
 
 const Settings = () => {
-  const { user, updateProfile, isUpdatingProfile, logout } = useAuthStore();
-
-  const [formData, setFormData] = useState({
-    username: user?.username || "",
-    email: "",
-    password: "",
-  });
-  const [formError, setFormError] = useState<z.core.$ZodIssue[] | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
   const navigate = useNavigate();
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file && file.type.startsWith("image/")) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    if (formData.username === user?.username && !imagePreview) return;
-
-    const validated = z.safeParse(UpdateProfileSchema, {
-      username: formData.username,
-    });
-
-    if (validated.error) {
-      setFormError(validated.error.issues);
-      return;
-    }
-
-    updateProfile({ profilePic: imagePreview, ...validated.data });
-  };
-
-  const handleThemeChange = (theme: string) => {
-    localStorage.setItem("color_theme", theme);
-    document.documentElement.setAttribute("data-theme", theme);
-  };
 
   return (
     <div className="w-full h-full rounded-xl flex flex-col justify-start items-center p-1 sm:p-5.5">
@@ -69,83 +20,9 @@ const Settings = () => {
           </button>
         </div>
         <div className="flex flex-col items-center justify-start gap-10.5 w-full sm:w-1/2 h-full overflow-y-auto">
-          <div className="w-full">
-            <form
-              noValidate
-              className="w-full flex flex-col justify-center items-center gap-4"
-              onSubmit={handleSubmit}
-            >
-              <div className="relative">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleFileChange}
-                />
-                <img
-                  src={
-                    imagePreview
-                      ? imagePreview
-                      : user?.photoUrl !== ""
-                        ? user?.photoUrl
-                        : "avatar_placeholder.png"
-                  }
-                  alt="avatar"
-                  className="w-24 h-24 rounded-full object-cover"
-                />
-                <button
-                  type="button"
-                  className="duration-150 transition-all absolute bg-label-text hover:bg-spec-1 rounded-full p-1.5 bottom-0 right-0 cursor-pointer group"
-                  onClick={() => {
-                    fileInputRef.current?.click();
-                  }}
-                >
-                  <Camera
-                    className="duration-150 transition-all text-spec-1 group-hover:text-label-text"
-                    size={20}
-                  />
-                </button>
-              </div>
-              <div className="flex flex-col justufy-center items-center gap-6 w-full">
-                <div className="flex flex-col justify-center items-center gap-5 w-full">
-                  <FormInput
-                    placeholder="First Name"
-                    inputFor="username"
-                    formData={formData}
-                    setFormData={setFormData}
-                    formError={formError}
-                  />
-                </div>
-                <FormButton placeholder="Update Profile" loading={isUpdatingProfile} />
-              </div>
-            </form>
-          </div>
-          <div className="w-full">
-            <h1 className="text-label-text font-semibold text-2xl mb-4.5">Themes:</h1>
-            <ul className="grid lg:grid-cols-8 md:grid-cols-4 grid-cols-2 gap-y-5 md:gap-y-10 w-full max-h-[256px] md:max-h-full overflow-y-auto">
-              {themes.map((theme, key) => (
-                <li
-                  title={theme.name.replace("-", " ")}
-                  aria-label={theme.name}
-                  key={key}
-                  className="mx-auto aspect-square rounded-full w-full h-full min-w-10 min-h-10 max-w-16 max-h-16 cursor-pointer outline-0 outline-input-text hover:outline-2 transition-normal duration-100"
-                  style={{
-                    backgroundImage: `linear-gradient(60deg, ${theme.colors.main}, ${theme.colors.secondary})`,
-                  }}
-                  onClick={() => handleThemeChange(theme.name)}
-                />
-              ))}
-            </ul>
-          </div>
-          <div className="w-full">
-            <button
-              className="w-full h-[52px] duration-150 transition-all cursor-pointer rounded-sm bg-spec-1 text-label-text hover:bg-red-800 hover:text-red-200 font-semibold"
-              onClick={logout}
-            >
-              Logout
-            </button>
-          </div>
+          <UpdateProfile />
+          <Themes />
+          <Logout />
         </div>
       </div>
     </div>
