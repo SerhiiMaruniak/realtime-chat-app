@@ -123,13 +123,13 @@ const Settings = () => {
           </div>
           <div className="w-full">
             <h1 className="text-label-text font-semibold text-2xl mb-4.5">Themes:</h1>
-            <ul className="grid grid-cols-8 gap-y-10 place-items-center w-full">
+            <ul className="grid lg:grid-cols-8 md:grid-cols-4 grid-cols-2 gap-y-5 md:gap-y-10 w-full max-h-[256px] md:max-h-full overflow-y-auto">
               {themes.map((theme, key) => (
                 <li
                   title={theme.name.replace("-", " ")}
                   aria-label={theme.name}
                   key={key}
-                  className="rounded-full w-16 h-16 cursor-pointer outline-0 outline-input-text hover:outline-2 transition-normal duration-100"
+                  className="mx-auto aspect-square rounded-full w-full h-full min-w-10 min-h-10 max-w-16 max-h-16 cursor-pointer outline-0 outline-input-text hover:outline-2 transition-normal duration-100"
                   style={{
                     backgroundImage: `linear-gradient(60deg, ${theme.colors.main}, ${theme.colors.secondary})`,
                   }}
