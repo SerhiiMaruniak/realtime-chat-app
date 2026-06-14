@@ -1,6 +1,7 @@
 import { getReceiverSocketIds, io } from "../lib/socket.js";
 import FriendRequest from "../models/friend.model.js";
 import User from "../models/user.model.js";
+import Message from "../models/message.model.js";
 
 export const sendFriendRequest = async (req, res) => {
   try {
@@ -214,6 +215,13 @@ export const deleteFriend = async (req, res) => {
 
     await myUser.updateOne({ $pull: { friendsList: friendUser._id } });
     await friendUser.updateOne({ $pull: { friendsList: myUser._id } });
+
+    await Message.deleteMany({
+      $or: [
+        { senderId: myUser._id, receiverId: friendUser._id },
+        { senderId: friendUser._id, receiverId: myUser._id },
+      ],
+    });
 
     const receiverSocketId = getReceiverSocketIds(friendUser._id.toString());
     if (receiverSocketId) {
