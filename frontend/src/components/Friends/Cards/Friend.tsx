@@ -8,7 +8,9 @@ const Friend = ({ friend }: { friend: User }) => {
   const { isDeletingFriend, deleteFriend } = useFriendsStore();
   const { selectChat } = useChatStore();
 
-  const handleDeleteFriend = () => {
+  const handleDeleteFriend = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    e.stopPropagation();
+
     deleteFriend(friend._id);
   };
 
@@ -35,7 +37,7 @@ const Friend = ({ friend }: { friend: User }) => {
       </div>
       <div className="flex justify-end items-center flex-2 gap-4">
         <button
-          onClick={handleDeleteFriend}
+          onClick={(e) => handleDeleteFriend(e)}
           className="bg-spec-1/45 hover:bg-spec-1/20 p-1.5 rounded-md cursor-pointer text-label-text transition-colors duration-100 ease-in-out disabled:cursor-not-allowed"
         >
           {isDeletingFriend === friend._id ? <Loader /> : <UserMinus />}
