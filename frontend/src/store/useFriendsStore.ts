@@ -10,6 +10,7 @@ interface FriendsProps {
   users: User[] | null;
   friends: User[] | null;
   friendRequests: requestSchema[] | [];
+  sentFriendRequests: requestSchema[] | [];
   isGettingUsers: boolean;
   totalPages: number;
   currentPage: number;
@@ -37,6 +38,7 @@ export const useFriendsStore = create<FriendsProps>((set) => ({
   users: null,
   friends: null,
   friendRequests: [],
+  sentFriendRequests: [],
   isGettingUsers: false,
   isGettingFriends: false,
   isGettingFriendRequests: false,
@@ -95,7 +97,13 @@ export const useFriendsStore = create<FriendsProps>((set) => ({
       const response = await AxiosInstance.get(`/friends/requests`, {
         params: { type },
       });
-      set({ friendRequests: response.data });
+      if (type === "received") {
+        set({
+          friendRequests: response.data,
+        });
+      } else {
+        set({ sentFriendRequests: response.data });
+      }
     } catch (error: any) {
       console.error(error);
     } finally {
@@ -109,7 +117,7 @@ export const useFriendsStore = create<FriendsProps>((set) => ({
     try {
       const response = await AxiosInstance.post(`/friends/send-request/${id}`);
       set((state) => ({
-        friendRequests: [...(state.friendRequests || []), response.data],
+        sentFriendRequests: [...(state.sentFriendRequests || []), response.data],
       }));
       toast.success("Sent friend request successfully");
     } catch (error: any) {
@@ -126,11 +134,15 @@ export const useFriendsStore = create<FriendsProps>((set) => ({
     try {
       await AxiosInstance.put(`/friends/manage-request/${data.id}`, data);
 
-      set((state) => ({
-        friendRequests: [
-          ...(state.friendRequests.filter((req) => req._id !== data.id) || []),
-        ],
-      }));
+      set((state) => {
+        const received = state.friendRequests.filter((req) => req._id !== data.id);
+        return {
+          friendRequests: received,
+          sentFriendRequests: state.sentFriendRequests.filter(
+            (req) => req._id !== data.id,
+          ),
+        };
+      });
     } catch (error: any) {
       toast.error(error.response.data.error);
       console.error(error);
@@ -161,37 +173,64 @@ export const useFriendsStore = create<FriendsProps>((set) => ({
 
   subscribeFriends: () => {
     const socket = useAuthStore.getState().socket;
+    const getId = (item: any) => (typeof item === "string" ? item : (item?._id ?? ""));
 
     socket?.on("addFriend", (newRequest) => {
+      const currentUserId = useAuthStore.getState().user?._id;
+
       set((state) => {
-        const exists = state.friendRequests.some((req) => req._id === newRequest._id);
-        return {
-          friendRequests: exists
+        const isReceiver =
+          currentUserId && getId(newRequest.receiverId) === currentUserId;
+        const isSender = currentUserId && getId(newRequest.senderId) === currentUserId;
+
+        const received = isReceiver
+          ? state.friendRequests.some((req) => req._id === newRequest._id)
             ? state.friendRequests
-            : [...(state.friendRequests || []), newRequest],
+            : [...(state.friendRequests || []), newRequest]
+          : state.friendRequests;
+
+        const sent = isSender
+          ? state.sentFriendRequests.some((req) => req._id === newRequest._id)
+            ? state.sentFriendRequests
+            : [...(state.sentFriendRequests || []), newRequest]
+          : state.sentFriendRequests;
+
+        return {
+          friendRequests: received,
+          sentFriendRequests: sent,
         };
       });
     });
 
     socket?.on("acceptRequest", (newFriend, friendRequest) => {
-      set((state) => ({
-        friends: [...(state.friends || []), newFriend],
-        friendRequests: [
-          ...(state.friendRequests.filter(
+      set((state) => {
+        const received = state.friendRequests.filter(
+          (request) => request._id !== friendRequest._id,
+        );
+
+        return {
+          friends: [...(state.friends || []), newFriend],
+          friendRequests: received,
+          sentFriendRequests: state.sentFriendRequests.filter(
             (request) => request._id !== friendRequest._id,
-          ) || []),
-        ],
-      }));
+          ),
+        };
+      });
     });
 
     socket?.on("declineRequest", (friendRequest) => {
-      set((state) => ({
-        friendRequests: [
-          ...(state.friendRequests.filter(
+      set((state) => {
+        const received = state.friendRequests.filter(
+          (request) => request._id !== friendRequest._id,
+        );
+
+        return {
+          friendRequests: received,
+          sentFriendRequests: state.sentFriendRequests.filter(
             (request) => request._id !== friendRequest._id,
-          ) || []),
-        ],
-      }));
+          ),
+        };
+      });
     });
 
     socket?.on("deleteFriend", (friendId) => {

@@ -73,7 +73,7 @@ export const getFriendRequests = async (req, res) => {
         "_id username user_id photoUrl",
       );
       requests = request;
-    } else if ("sent") {
+    } else if (type === "sent") {
       requests = await FriendRequest.find({ senderId: req.user._id }).populate(
         "receiverId",
         "_id username user_id photoUrl",
