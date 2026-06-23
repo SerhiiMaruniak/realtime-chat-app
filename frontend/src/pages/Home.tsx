@@ -9,13 +9,24 @@ import AllFriends from "../components/Friends/AllFriends";
 import Requests from "../components/Friends/Requests";
 import AddFriends from "../components/Friends/AddFriends";
 import { useFriendsStore } from "../store/useFriendsStore";
+import { useAuthStore } from "../store/useAuthStore";
 
 const Home = () => {
   const [selectedPage, setSelectedPage] = useState<React.JSX.Element>(<Chat />);
   const [homeContextValue, setHomeContextValue] = useState<HomeContextValue>("Chat");
 
-  const { selectedImage, selectedChat, subscribeMessages } = useChatStore();
-  const { subscribeFriends, unsubscribeFriends } = useFriendsStore();
+  const { selectedImage, selectedChat } = useChatStore();
+  const { subscribeFriends, unsubscribeFriends, getRequests } = useFriendsStore();
+  const { user, socket } = useAuthStore();
+
+  useEffect(() => {
+    if (!user) return;
+
+    getRequests("received");
+    subscribeFriends();
+
+    return () => unsubscribeFriends();
+  }, [socket, user, subscribeFriends, unsubscribeFriends, getRequests]);
 
   useEffect(() => {
     switch (homeContextValue) {
@@ -33,13 +44,6 @@ const Home = () => {
         break;
     }
   }, [homeContextValue]);
-
-  useEffect(() => {
-    subscribeFriends();
-    subscribeMessages();
-
-    return () => unsubscribeFriends();
-  }, [subscribeFriends, unsubscribeFriends, subscribeMessages]);
 
   useEffect(() => {
     if (selectedChat) setHomeContextValue("Chat");

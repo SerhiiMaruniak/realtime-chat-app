@@ -1,29 +1,29 @@
-import { memo, useEffect, useState } from "react";
+import { memo } from "react";
 import { UserPlus, Hourglass } from "lucide-react";
 import type User from "../../../lib/schemas/userSchema";
 import { useFriendsStore } from "../../../store/useFriendsStore";
 import Loader from "../../Loader";
-import { useAuthStore } from "../../../store/useAuthStore";
 
 interface FoundUserProps {
   user: User;
 }
 
+const getId = (item: string | { _id: string }) =>
+  typeof item === "string" ? item : (item?._id ?? "");
+
 const FoundUser = memo(({ user }: FoundUserProps) => {
-  const [requested, setRequested] = useState<boolean>(false);
-  const [isFriend, setIsFriend] = useState<boolean>(false);
+  const {
+    friends,
+    sendRequest,
+    sentFriendRequests,
+    friendRequests,
+    isSendingFriendRequest,
+  } = useFriendsStore();
 
-  const { user: currentUser } = useAuthStore();
-  const { friends, sendRequest, friendRequests, isSendingFriendRequest } =
-    useFriendsStore();
-
-  useEffect(() => {
-    setRequested(
-      friendRequests.find((req) => req.receiverId._id === user._id) !== undefined,
-    );
-
-    setIsFriend(friends?.find((friend) => friend._id === user._id) !== undefined);
-  }, [friendRequests, user._id, requested, currentUser, friends]);
+  const requested =
+    sentFriendRequests.some((req) => getId(req.receiverId) === user._id) ||
+    friendRequests.some((req) => getId(req.senderId) === user._id);
+  const isFriend = friends?.some((friend) => friend._id === user._id) ?? false;
 
   const sendFriendRequest = () => {
     if (requested) return;

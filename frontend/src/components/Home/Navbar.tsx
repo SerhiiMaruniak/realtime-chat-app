@@ -1,7 +1,10 @@
 import { useContext } from "react";
 import { HomeContext, type HomeContextValue } from "../../context/HomeContext";
+import { useFriendsStore } from "../../store/useFriendsStore";
 
 const Navbar = () => {
+  const { friendRequests } = useFriendsStore();
+
   const homeContext = useContext(HomeContext);
 
   const handleChangePage = (str: HomeContextValue) => {
@@ -25,7 +28,7 @@ const Navbar = () => {
         </li>
         <li
           onClick={() => handleChangePage("Requests")}
-          className="cursor-pointer text-label-text text-sm hover:bg-spec-1/65 px-1 sm:px-3 py-1 rounded-xs transition-all ease-in-out duration-200"
+          className="relative cursor-pointer text-label-text text-sm hover:bg-spec-1/65 px-1 sm:px-3 py-1 rounded-xs transition-all ease-in-out duration-200"
           style={{
             backgroundColor:
               homeContext?.value === "Requests"
@@ -34,6 +37,9 @@ const Navbar = () => {
           }}
         >
           Requests
+          {friendRequests.length > 0 && (
+            <div className="absolute -top-0.5 -right-1 bg-label-text w-2.5 h-2.5 rounded-full" />
+          )}
         </li>
         <li
           onClick={() => handleChangePage("Add_Friends")}
