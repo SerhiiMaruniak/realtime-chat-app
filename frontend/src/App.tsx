@@ -1,12 +1,11 @@
 import { useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-
-import { useAuthStore } from "./store/useAuthStore.ts";
+import { Toaster } from "react-hot-toast";
 
 import Home from "./pages/Home.tsx";
 import SignIn from "./pages/SignIn.tsx";
 import SignUp from "./pages/SignUp.tsx";
-import { Toaster } from "react-hot-toast";
+import { useAuthStore } from "./store/useAuthStore.ts";
 import Loader from "./components/Loader.tsx";
 import Settings from "./pages/Settings.tsx";
 import ForgotPassword from "./pages/ForgotPassword.tsx";
@@ -66,7 +65,14 @@ const App = () => {
         e.preventDefault();
       }}
     >
-      <Toaster />
+      <Toaster
+        toastOptions={{
+          style: {
+            backgroundColor: "var(--spec-1)",
+            color: "var(--label-text)",
+          },
+        }}
+      />
 
       <Routes>
         <Route path="/" element={user ? <Home /> : <Navigate to={"/signin"} />} />
