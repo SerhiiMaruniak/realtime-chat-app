@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.3](https://github.com/NemoX12/realtime-chat-app/compare/v0.0.2...v0.0.3) (2026-06-24)
+
+
+### Features
+
+* add hover effect for friends component ([a5bbe61](https://github.com/NemoX12/realtime-chat-app/commit/a5bbe61aa3680907b99c47a0cdafbff1fae0cd9e))
+* add logic that clears chat history between two users when they remove from friends each other ([c67c711](https://github.com/NemoX12/realtime-chat-app/commit/c67c7114a67d2a2048d0d274420980bd3998bae8))
+* add renderThemeName logic ([18d014e](https://github.com/NemoX12/realtime-chat-app/commit/18d014e83e53b9d4a16f4423f83421451698bda1))
+* add requests indicator ([29d115e](https://github.com/NemoX12/realtime-chat-app/commit/29d115e8cb0afee5be64e10794cc78663a69b839))
+* add responsive design ([25eff12](https://github.com/NemoX12/realtime-chat-app/commit/25eff125d6cd01ff79ed36709cac103bbc6a732a))
+* add styles to toast component ([2c5e863](https://github.com/NemoX12/realtime-chat-app/commit/2c5e8631a9e2c6261e31683ed2e7de98a2932843))
+* add themes logic and clean existing classes ([bff4201](https://github.com/NemoX12/realtime-chat-app/commit/bff42012bb8cff442121616b87c6a87787fdc979))
+* **auth:** change max age for cookies from one day to three ([ab3ecf0](https://github.com/NemoX12/realtime-chat-app/commit/ab3ecf0f25ab9cb941c1f5e2a5f972e28d8b0a75))
+* improve message deleteing logic ([15697d4](https://github.com/NemoX12/realtime-chat-app/commit/15697d49da9ceeaadd8187b41d28a87441e8ad3c))
+* prevented event bubbling on a button ([0b49d73](https://github.com/NemoX12/realtime-chat-app/commit/0b49d731e046a5b05d5ea25807c17f07643427ee))
+
 ### [0.0.2](https://github.com/NemoX12/realtime-chat-app/compare/v0.0.1...v0.0.2) (2026-06-12)
 
 ### [0.0.1](https://github.com/NemoX12/realtime-chat-app/compare/v0.0.0...v0.0.1) (2026-06-12)
