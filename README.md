@@ -2,6 +2,9 @@
 
 A full-stack realtime chat application with authentication, direct messaging, friend requests, image attachments, online presence, and password reset emails.
 
+![Sign In Page Demo](.github/assets/signin_page.webp)
+![Home Page Demo](.github/assets/home_page.webp)
+
 ## Features
 
 - Email/password authentication with protected routes
