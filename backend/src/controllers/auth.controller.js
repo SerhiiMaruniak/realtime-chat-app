@@ -5,29 +5,11 @@ import crypto from "node:crypto";
 import handlebars from "handlebars";
 
 import cloudinary from "../lib/cloudinary.js";
-import { generateToken } from "../lib/utils.js";
+import { generateToken, getFileMeta, generateUniqueUserId } from "../lib/utils.js";
 import User from "../models/user.model.js";
 import { io } from "../lib/socket.js";
 import sendMail from "../lib/email.js";
-import { getFileMeta } from "../lib/pathUtils.js";
 import EmailLog from "../models/emaillog.model.js";
-
-const generateUniqueUserId = async (rawUsername) => {
-  if (!rawUsername) return null;
-
-  const lower = rawUsername.toLowerCase();
-  const trimmed = lower.replace(/\s+$/, "");
-  const base = trimmed.replace(/\s+/g, "_");
-
-  for (let i = 0; i < 100; i++) {
-    const candidate = i === 0 ? base : `${base}${i}`;
-    const exists = await User.findOne({ user_id: candidate });
-    if (!exists) return candidate;
-  }
-
-  const fallback = Math.floor(1000 + Math.random() * 9000);
-  return `${base}${fallback}`;
-};
 
 export const signUp = async (req, res) => {
   try {
