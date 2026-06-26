@@ -14,6 +14,7 @@ A full-stack realtime chat application with authentication, direct messaging, fr
 - Image uploads for profile photos and message attachments via Cloudinary
 - Password reset flow using email links
 - Online user tracking
+- Changing themes
 
 ## Tech Stack
 
