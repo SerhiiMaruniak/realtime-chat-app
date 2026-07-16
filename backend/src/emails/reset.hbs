@@ -2,42 +2,68 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Password Reset</title>
+    <title>Document</title>
   </head>
-  <body style="margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif">
-    <div
-      style="
-        width: 100%;
-        height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      "
+  <body>
+    <table
+      width="100%"
+      style="background-color: #f9f9f9; font-family: Arial, Helvetica, sans-serif"
     >
-      <div style="max-width: 500px">
-        <p style="margin: 0">
-          Hello,
-          <br /><br />
-          Click here to change your password
-        </p>
-
-        <a href="{{link}}" target="_blank">
-          <button
+      <tr>
+        <td>
+          <table
+            align="center"
             style="
-              margin-top: 15px;
-              padding: 1rem 1.5rem;
-              outline: none;
-              border: none;
-              border-radius: 3px;
-              cursor: pointer;
-              background-color: #51426f;
-              color: #9e89c7;
+              margin: 50px auto;
+              background-color: #f0f0f0;
+              padding: 40px 25px;
+              border-radius: 5px;
             "
+            cellspacing="25px"
           >
-            Change Password
-          </button>
-        </a>
-      </div>
-    </div>
+            <thead>
+              <tr>
+                <th align="left">
+                  <h1 style="margin: 0">Reset Password Code</h1>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  We've received your request to reset your password. Please click the
+                  link below to complete the reset.
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <a
+                    style="
+                      padding: 1rem 1.5rem;
+                      outline: none;
+                      border: none;
+                      border-radius: 3px;
+                      cursor: pointer;
+                      background-color: #51426f;
+                      color: #9e89c7;
+                      text-decoration-line: none;
+                    "
+                    href={{link}}
+                    target="_blank"
+                  >Reset Password</a>
+                </td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr>
+                <td style="padding-top: 25px">
+                  If it wasn't you, just ignore this email.
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </td>
+      </tr>
+    </table>
   </body>
 </html>
