@@ -14,7 +14,7 @@ interface ChatProps {
   unreadMessages: messageSchema[] | null;
   hasMore: boolean;
   lastId: string | null;
-  contextMenu: {
+  messageContextMenu: {
     message: string;
     offsetX: number;
     offsetY: number;
@@ -39,7 +39,7 @@ interface ChatProps {
   loadUntilMessage: (chatId: string, messageId: string) => Promise<void>;
   deleteMessage: (id: string) => Promise<void>;
   setMessageSeen: (messageId: string) => Promise<void>;
-  showContextMenu: (
+  showMessageContextMenu: (
     data: { offsetX: number; offsetY: number; message: string } | null,
   ) => void;
   subscribeMessages: () => void;
@@ -61,7 +61,7 @@ export const useChatStore = create<ChatProps>((set, get) => ({
       return null;
     }
   })(),
-  contextMenu: null,
+  messageContextMenu: null,
   isGettingUsers: false,
   isGettingMessages: false,
   isSendingMessage: false,
@@ -204,7 +204,7 @@ export const useChatStore = create<ChatProps>((set, get) => ({
     }
   },
 
-  showContextMenu: (data) => set({ contextMenu: data }),
+  showMessageContextMenu: (data) => set({ messageContextMenu: data }),
 
   subscribeMessages: () => {
     const socket = useAuthStore.getState().socket;

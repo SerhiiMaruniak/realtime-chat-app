@@ -4,10 +4,10 @@ import { getHM } from "../../../lib/formatDate";
 import type messageSchema from "../../../lib/schemas/messageSchema";
 import { useChatStore } from "../../../store/useChatStore";
 import { useAuthStore } from "../../../store/useAuthStore";
-import ContextMenu from "./ContextMenu";
 import RepliedMessage from "./RepliedMessage";
 import Footer from "./Footer";
 import { MessageRefsContext } from "../../../context/MessageRefsContext";
+import MessageContextMenu from "./ContextMenu";
 
 interface MessageProps {
   message: messageSchema;
@@ -16,7 +16,8 @@ interface MessageProps {
 
 const Message = ({ message, lastSeenMessageId }: MessageProps) => {
   const messageRef = useRef<HTMLDivElement>(null);
-  const { selectImage, setMessageSeen, contextMenu, showContextMenu } = useChatStore();
+  const { selectImage, setMessageSeen, messageContextMenu, showMessageContextMenu } =
+    useChatStore();
   const { user } = useAuthStore();
   const messageRefsContext = useContext(MessageRefsContext);
 
@@ -52,7 +53,7 @@ const Message = ({ message, lastSeenMessageId }: MessageProps) => {
   const handleContextMenu = (e: React.MouseEvent) => {
     e.preventDefault();
 
-    showContextMenu({
+    showMessageContextMenu({
       offsetX: e.clientX,
       offsetY: e.clientY,
       message: message._id,
@@ -153,7 +154,9 @@ const Message = ({ message, lastSeenMessageId }: MessageProps) => {
         </div>
       </div>
 
-      {contextMenu?.message === message._id && <ContextMenu message={message} />}
+      {messageContextMenu?.message === message._id && (
+        <MessageContextMenu message={message} />
+      )}
     </>
   );
 };

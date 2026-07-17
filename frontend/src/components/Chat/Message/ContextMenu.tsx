@@ -13,18 +13,18 @@ const ContextMenuPortal = ({ children }: { children: React.ReactNode }) => {
   return createPortal(children, document.body);
 };
 
-const ContextMenu = ({ message }: ContextProps) => {
+const MessageContextMenu = ({ message }: ContextProps) => {
   const [position, setPosition] = useState<{ x: number; y: number }>({
     x: 0,
     y: 0,
   });
   const contextRef = useRef<HTMLDivElement | null>(null);
 
-  const { deleteMessage, contextMenu, showContextMenu } = useChatStore();
+  const { deleteMessage, messageContextMenu, showMessageContextMenu } = useChatStore();
   const { user } = useAuthStore();
 
   useEffect(() => {
-    if (!contextMenu) return;
+    if (!messageContextMenu) return;
 
     const calculatePosition = () => {
       const current = contextRef.current;
@@ -34,8 +34,8 @@ const ContextMenu = ({ message }: ContextProps) => {
       const viewportWidth = window.innerWidth;
       const viewportHeight = window.innerHeight;
 
-      const clickX = contextMenu.offsetX ?? 0;
-      const clickY = contextMenu.offsetY ?? 0;
+      const clickX = messageContextMenu.offsetX ?? 0;
+      const clickY = messageContextMenu.offsetY ?? 0;
 
       let x = clickX;
       let y = clickY;
@@ -55,22 +55,22 @@ const ContextMenu = ({ message }: ContextProps) => {
     };
 
     requestAnimationFrame(calculatePosition);
-  }, [contextMenu]);
+  }, [messageContextMenu]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (contextRef.current && !contextRef.current.contains(event.target as Node)) {
-        showContextMenu(null);
+        showMessageContextMenu(null);
       }
     };
 
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        showContextMenu(null);
+        showMessageContextMenu(null);
       }
     };
 
-    if (contextMenu) {
+    if (messageContextMenu) {
       document.addEventListener("mousedown", handleClickOutside);
       document.addEventListener("keydown", handleEscape);
     }
@@ -79,7 +79,7 @@ const ContextMenu = ({ message }: ContextProps) => {
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("keydown", handleEscape);
     };
-  }, [contextMenu, showContextMenu]);
+  }, [messageContextMenu, showMessageContextMenu]);
 
   const handleReply = async () => {
     window.dispatchEvent(
@@ -91,7 +91,7 @@ const ContextMenu = ({ message }: ContextProps) => {
         },
       }),
     );
-    showContextMenu(null);
+    showMessageContextMenu(null);
   };
 
   const handleCopy = async () => {
@@ -101,12 +101,12 @@ const ContextMenu = ({ message }: ContextProps) => {
     } catch {
       toast.error("Failed to copy message");
     }
-    showContextMenu(null);
+    showMessageContextMenu(null);
   };
 
   const handleDelete = () => {
     deleteMessage(message._id);
-    showContextMenu(null);
+    showMessageContextMenu(null);
   };
 
   const handleEdit = () => {
@@ -115,10 +115,10 @@ const ContextMenu = ({ message }: ContextProps) => {
         detail: { id: message._id, content: message.content },
       }),
     );
-    showContextMenu(null);
+    showMessageContextMenu(null);
   };
 
-  if (!contextMenu) return null;
+  if (!messageContextMenu) return null;
 
   return (
     <ContextMenuPortal>
@@ -168,4 +168,4 @@ const ContextMenu = ({ message }: ContextProps) => {
   );
 };
 
-export default ContextMenu;
+export default MessageContextMenu;
