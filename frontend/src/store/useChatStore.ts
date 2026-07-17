@@ -19,6 +19,11 @@ interface ChatProps {
     offsetX: number;
     offsetY: number;
   } | null;
+  sidebarContextMenu: {
+    user: string;
+    offsetX: number;
+    offsetY: number;
+  } | null;
   isGettingUsers: boolean;
   isSendingMessage: boolean;
   isGettingMessages: boolean;
@@ -42,6 +47,9 @@ interface ChatProps {
   showMessageContextMenu: (
     data: { offsetX: number; offsetY: number; message: string } | null,
   ) => void;
+  showSidebarContextMenu: (
+    data: { offsetX: number; offsetY: number; user: string } | null,
+  ) => void;
   subscribeMessages: () => void;
   unsubscribeMessages: () => void;
 }
@@ -62,6 +70,7 @@ export const useChatStore = create<ChatProps>((set, get) => ({
     }
   })(),
   messageContextMenu: null,
+  sidebarContextMenu: null,
   isGettingUsers: false,
   isGettingMessages: false,
   isSendingMessage: false,
@@ -205,6 +214,8 @@ export const useChatStore = create<ChatProps>((set, get) => ({
   },
 
   showMessageContextMenu: (data) => set({ messageContextMenu: data }),
+
+  showSidebarContextMenu: (data) => set({ sidebarContextMenu: data }),
 
   subscribeMessages: () => {
     const socket = useAuthStore.getState().socket;
