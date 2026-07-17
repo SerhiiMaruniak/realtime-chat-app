@@ -7,7 +7,7 @@ import { useAuthStore } from "../../../store/useAuthStore";
 import RepliedMessage from "./RepliedMessage";
 import Footer from "./Footer";
 import { MessageRefsContext } from "../../../context/MessageRefsContext";
-import MessageContextMenu from "./ContextMenu";
+import MessageContextMenu from "./MessageContextMenu";
 
 interface MessageProps {
   message: messageSchema;
